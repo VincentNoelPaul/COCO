@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html Content-Type: text/html; charset=UTF-8>
+<meta charset="UTF-8">
+
+<head>
+<title>Commandes COCO</title>
+
+<style type="text/css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Prompt</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            background-color: #000;
+            color: #c0c0c0;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        #terminal {
+            height: 100%;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            line-height: 1.2;
+        }
+
+        .line {
+            margin: 0;
+            padding: 0;
+        }
+
+        .prompt-text {
+            color: #c0c0c0;
+            display: inline;
+        }
+
+        .command-text {
+            color: #c0c0c0;
+            display: inline;
+        }
+
+        .output-text {
+            color: #000000;
+            white-space: pre-wrap;
+        }
+
+        .error-text {
+            color: #ff6b6b;
+            white-space: pre-wrap;
+        }
+
+        .current-line {
+            display: flex;
+            align-items: center;
+        }
+
+        #input {
+            background: transparent;
+            border: none;
+            color: #307C34;
+            font-family: inherit;
+            font-size: inherit;
+            outline: none;
+            flex: 1;
+            margin-left: 0;
+            padding: 0;
+        }
+
+        .cursor {
+            background-color: #c0c0c0;
+            color: #000;
+            display: inline-block;
+            width: 8px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+</style>
+</head>
+
+<body>
+
+    <div id="terminal">
+        <div class="line output-text">COCO Commands (test)</div>
+        <div class="line output-text">(c) Vincent REMY</div>
+        <div class="line output-text"></div>
+        <div class="current-line">
+            <span class="prompt-text" id="prompt">C:\></span>
+            <input type="text" id="input" autocomplete="off" spellcheck="false">
+            <span class="cursor">█</span>
+        </div>
+    </div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const input = document.getElementById('input');
+        const promptElement = document.getElementById('prompt');
+        
+        let commandHistory = [];
+        let historyIndex = -1;
+        let MyPrompt = 'You: ';
+	    let COCOPrompt = 'COCO: ';
+
+        // Built-in commands
+        const commands = {
+			
+            help: (args) => {
+                 if (args.length === 0) {
+				 	return 'Help:\n \
+help: Shows this help message. Type \'help command\' to show the help specific to this command. \n\n \
+Commandes disponibles: \n \
+====================== \n \
+importer: Imports data into the Editor windows \n\n \
+References dans les figures: \n \
+============================ \n \
+espacer_references: Changes reference numbers with a fix shift \n \
+reordonner_references: Changes reference numbers putting them in increasing number \n \
+ordre_caracteristiques: Changes reference numbers ??? \n\n \
+Modifications dans le texte: \n \
+============================ \n \
+remplacement: Replaces words or expressions, adjusting to gender and number \n \
+detruire_sauvegarde: Deletes the backup stored in the browser \n\n \
+Noms d\'étiquettes et de champs: \n \
+================================ \n \
+liste: Lists tagnames or fields \n \
+clear: Clears this window \n \
+exit: Closes this window'
+				} else {
+					if (args == 'importer') return 'aide de la commande importer';
+					if (args == 'espacer_references') return 'aide de la commande espacer_references';
+					if (args == 'reordonner_references') return 'aide de la commande reordonner_references';
+					if (args == 'ordre_caracteristiques') return 'aide de la commande ordre_caracteristiques';
+					if (args == 'remplacement') return 'aide de la commande remplacement';
+					if (args == 'detruire_sauvegarde') return 'aide de la commande detruire_sauvegarde';
+					if (args == 'liste') return 'aide de la commande liste';
+					if (args == 'clear') return 'aide de la commande clear';
+					if (args == 'exit') return 'aide de la commande exit';
+				}
+            },
+			
+            importer: (args) => {
+				if (args.length === 0) {
+				 	return 'importer formulaire, exemple, explications, tagsrevs, tout ou exprefs ?';
+				} else {
+					if ((args == 'formulaire') || (args == 'exemple') || (args == 'explications') || (args == 'tagsrevs') || (args == 'tout')) {
+						return window.opener.Texte_import(args);
+					} else if (args == 'exprefs') return window.opener.ListeBalisesRef(); else return 'importer formulaire, exemple, explications, tagsrevs, tout ou exprefs ?';
+				}
+			},
+					
+			date: () => {		
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+                const timeStr = now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit' });
+                
+                return dateStr + ' ' + timeStr;
+            },
+            
+            clear: () => {
+                // Clear all content except the current input line
+                const lines = terminal.querySelectorAll('.line');
+                lines.forEach(line => line.remove());
+                return null; // Special return to indicate screen clear
+            },
+            
+            reordonner_references: (args) => {
+                if (args.length === 0) {
+                    return 'arguments manquants';
+                }
+                
+                const path = args.join(' ');
+                if (path === '..') {
+                    const parts = MyPrompt.split('\\');
+                    if (parts.length > 1) {
+                        parts.pop();
+                        MyPrompt = parts.join('\\') || 'C:';
+                    }
+                } else if (path.match(/^[a-zA-Z]:$/)) {
+                    MyPrompt = path.toUpperCase();
+                } else {
+                    MyPrompt = MyPrompt + (MyPrompt.endsWith(':') ? '' : '\\') + path;
+                }
+                
+                updatePrompt();
+                return 'reordonner_references';
+            },
+
+            espacer_references: (args) => {
+                if (args.length === 0) {
+                    return MyPrompt;
+                }
+                
+                const path = args.join(' ');
+                if (path === '..') {
+                    const parts = MyPrompt.split('\\');
+                    if (parts.length > 1) {
+                        parts.pop();
+                        MyPrompt = parts.join('\\') || 'C:';
+                    }
+                } else if (path.match(/^[a-zA-Z]:$/)) {
+                    MyPrompt = path.toUpperCase();
+                } else {
+                    MyPrompt = MyPrompt + (MyPrompt.endsWith(':') ? '' : '\\') + path;
+                }
+                
+                updatePrompt();
+                return 'espacer_references';
+            },
+
+            ordre_caracteristiques: (args) => {
+                return args.join(' ');
+            },
+            
+            remplacement: () => {
+                return 'remplacement';
+            },
+            
+            detruire_sauvegarde: () => {
+                return 'detruire sauvegarde';
+            },
+            
+            liste: (args) => {
+				if (args.length === 0) {
+				 	return 'liste etiquettes ou liste champs ?';
+				} else {
+					if (args == 'etiquettes') {
+					const rep = window.opener.AfficheTags();
+                	return rep;
+					} else if (args == 'champs') {
+					const rep = window.opener.AfficheChamps();
+                	return rep;
+					} else return 'etiquettes ou champs ?';
+				}
+            },
+            
+            exit: () => {
+                return 'Goodbye!';
+            },
+            
+        };
+
+        function updatePrompt() {
+            promptElement.textContent = MyPrompt;
+        }
+
+        function executeCommand(commandLine) {
+            const parts = commandLine.trim().split(/\s+/);
+            const command = parts[0].toLowerCase();
+            const args = parts.slice(1);
+
+            if (command === '') {
+                return '';
+            }
+
+            if (commands[command]) {
+                return `${COCOPrompt}${commands[command](args)}`;
+            } else {
+                return `${COCOPrompt}'${command}' is not recognized as an internal or external command, operable program or batch file.`;
+            }
+        }
+
+        function addLine(content, isError = false) {
+            const line = document.createElement('div');
+            line.className = `line ${isError ? 'error-text' : 'output-text'}`;
+            line.textContent = content;
+            
+            const currentLine = document.querySelector('.current-line');
+            terminal.insertBefore(line, currentLine);
+            
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function processCommand() {
+            const commandLine = input.value;
+            
+            // Show the command that was entered
+            const commandDisplay = document.createElement('div');
+            commandDisplay.className = 'line';
+            commandDisplay.innerHTML = `<span class="prompt-text">${promptElement.textContent}</span><span class="command-text">${commandLine}</span>`;
+            
+            const currentLine = document.querySelector('.current-line');
+            terminal.insertBefore(commandDisplay, currentLine);
+
+            // Execute the command
+            if (commandLine.trim()) {
+                commandHistory.unshift(commandLine);
+                if (commandHistory.length > 50) {
+                    commandHistory.pop();
+                }
+                
+                const output = executeCommand(commandLine);
+                
+                if (output === null) {
+                    // Special case for cls command - don't add output
+                } else if (output) {
+                    const isError = output.includes('not recognized');
+                    addLine(output, isError);
+                }
+            }
+            
+            // Clear input and reset history index
+            input.value = '';
+            historyIndex = -1;
+            
+            // Scroll to bottom
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Event listeners
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                processCommand();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    input.value = commandHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    input.value = commandHistory[historyIndex];
+                } else {
+                    historyIndex = -1;
+                    input.value = '';
+                }
+            }
+        });
+
+        // Keep input focused
+        document.addEventListener('click', () => {
+            input.focus();
+        });
+
+        // Initial focus
+        input.focus();
+
+        // Initialize prompt
+        updatePrompt();
+    </script>
+
+</body>
+
+</html>

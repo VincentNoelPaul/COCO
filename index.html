@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html Content-Type: text/html; charset=UTF-8>
+<meta charset="UTF-8">
+
+<head>
+	<title>Parroted by COCO (test)</title>
+	<style>
+	p.chapitre {
+		text-align: center;
+		font-weight: bold;
+		font-size: 18px;
+	}
+	p.titre {
+		font-weight: bold;
+		font-size: 16px;
+	}
+	p.signature {
+		font-weight: bold;
+		font-size: 12px;
+		text-align: right;
+	}
+	</style>
+
+<script type="text/javascript">
+
+function ouvrir_liste_tags() {
+	var parametres = "width=300,height=900,left=10,top=0,scrollbars=1";
+    var myWindow = window.open("coco_tags.html", "COCO_liste_tags", parametres);
+}
+
+function copiehtml() {
+	if (!marchearret()) {
+		window.document.getElementById('copiehtml').style="border-style:inset;";
+		window.document.getElementById('copiebrute').disabled = true;
+		return true;
+	}
+	else {
+		window.document.getElementById('copiehtml').style="";
+		window.document.getElementById('copiebrute').disabled = false;
+		return false;
+	}
+}
+
+function copiebrute() {
+	if (!marchearret()) {
+		window.document.getElementById('copiebrute').style="border-style:inset;";
+		window.document.getElementById('copiehtml').disabled = true;
+	}
+	else {
+		window.document.getElementById('copiebrute').style="";
+		window.document.getElementById('copiehtml').disabled = false;
+	}
+}
+
+
+function marchearret() {
+	// retourne vrai si on met en marche, faux si on arrete
+	if (window.document.getElementById('continu').checked == true) {
+		window.document.getElementById('continu').checked = false;
+		window.document.getElementById('messageCOCO_inaction').style = "visibility: visible";
+		window.document.getElementById('messageCOCO_action').style = "visibility: hidden";
+		return false;
+	}
+	else {
+		window.document.getElementById('continu').checked = true;
+		window.document.getElementById('messageCOCO_inaction').style = "visibility: hidden";
+		window.document.getElementById('messageCOCO_action').style = "visibility: visible";
+		return true;
+	}
+}
+
+</script>
+</head>
+
+<body onLoad="ouvrir_liste_tags()">
+
+<table width="100%"><tbody>
+	<tr>
+		<td width="100%" align="center">
+			<a id="messageCOCO_action">&nbsp;</a>
+			<a id="messageCOCO_inaction">&nbsp;</a>&nbsp;&nbsp;
+			<button id="copiehtml" onclick="copiehtml()">Copie HTML</button>&nbsp;&nbsp;
+			<button id="copiebrute" onclick="copiebrute()">Copie brute</button>
+			<input id="continu" type="checkbox" checked hidden><button onchange="Calcul()" hidden>Calculer</button>&nbsp;
+		</td>
+	</tr>
+</tbody></table>
+
+
+<table width="100%" border="1"><tbody>
+	<tr>
+		<td width="100%" valign=top>
+			<div id="cadrecible" style="overflow-y: auto">Projet COCOté</div>
+		</td>
+	</tr>
+
+</body></table>
+
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<html Content-Type: text/html; charset=UTF-8>
+<meta charset="UTF-8">
+
+<head>
+<title>Personnalisation COCO</title>
+
+<style type="text/css">
+    button {
+      color: purple;
+      font-weight: bold;
+      font-size: 13px;
+      font-family: "Arial";
+      border-color: transparent;
+      background-color: transparent;
+    }
+</style>
+
+<script type="text/javascript">
+
+function charger_textes() {
+	var liste = window.opener.liste_expressions_personnalisees;
+
+	for (var i=0; i<liste.length; i++) {
+		var expression = 'window.opener.expression_'+liste[i];
+		var valeur_expression = eval(expression);
+//		alert(expression+' : '+valeur_expression);
+		var chaine_test_string = eval('typeof '+expression);
+//		alert('type : '+chaine_test_string);
+		if (chaine_test_string == 'string') {
+			var chaine_action = 'window.document.getElementById("'+liste[i]+'").value = "' + valeur_expression +'";';
+//			alert(chaine_action);
+			eval(chaine_action);
+		}
+		else {
+			for (var j=0; j<valeur_expression.length; j++) {
+				var chaine_action = 'window.document.getElementById("'+liste[i]+'_'+j+'").value = '+expression+'['+j+'];';
+//				alert(chaine_action);
+				eval(chaine_action);
+			}
+		}
+	}
+}
+
+function modifier_textes() {
+	var perso = {};
+	var liste = window.opener.liste_expressions_personnalisees;
+
+	for (var i=0; i<liste.length; i++) {
+		var expression = 'window.opener.expression_'+liste[i];
+		var valeur_expression = eval(expression);
+//		alert(expression+' : '+valeur_expression);
+		var chaine_test_string = eval('typeof '+expression);
+//		alert('type : '+chaine_test_string);
+		if (chaine_test_string == 'string') {
+			var chaine_action = expression +' = window.document.getElementById("'+liste[i]+'").value;';
+			eval(chaine_action);
+		}
+		else {
+			var chaine_action = '';
+			for (var j=0; j<valeur_expression.length; j++) {
+				var chaine_action_j = ((chaine_action.length > 1) ? '; ':'') + expression + '[' + j + '] = window.document.getElementById("'+liste[i]+'_'+j+'").value';
+				chaine_action = chaine_action + chaine_action_j;
+			}
+//			alert(chaine_action);
+			eval(chaine_action);
+		}
+	}
+
+
+	window.opener.SauverCookiePersonnalisation('fr');
+	window.opener.Calcul(1);
+	window.close();
+}
+
+
+</script>
+</head>
+
+<body onLoad="charger_textes()">
+
+<button onclick="modifier_textes()">Sauvegarder</button>
+
+<table>
+	<tr><td>domaine</td><td> <textarea cols="30" id="domaine_0"></textarea>&nbsp;<textarea cols="30" id="domaine_1"></textarea></td></tr>
+
+	<tr><td>désignation de l'invention</td><td> <textarea cols="10" id="designation_invention"></textarea></td></tr>
+
+	<tr><td>introduction de l'état de la technique</td> <td><textarea cols="20" id="introduction_edt_0"></textarea>&nbsp;<textarea cols="20" id="introduction_edt_1"></textarea></td></tr>
+
+	<tr><td>introduction du premier problème</td> <td><textarea cols="20" id="introduction_probleme_0"></textarea>&nbsp;<textarea cols="20" id="introduction_probleme_1"></textarea></td></tr>
+	<tr><td>introduction d'un autre problème</td> <td><textarea cols="40" id="introduction_autre_probleme"></textarea></td></tr>
+
+	<tr><td>introduction du premier inconvénient</td> <td><textarea cols="20" id="introduction_inconvenient_0"></textarea>&nbsp;<textarea cols="20" id="introduction_inconvenient_1"></textarea></td></tr>
+	<tr><td>introduction d'un autre inconvénient</td> <td><textarea cols="40" id="introduction_autre_inconvenient"></textarea></td></tr>
+
+	<tr><td>introduction du premier objectif de l'invention</td> <td><textarea cols="20" id="introduction_but_0"></textarea>&nbsp;<textarea cols="20" id="introduction_but_1"></textarea></td></tr>
+	<tr><td>introduction d'un autre objectif</td> <td><textarea cols="40" id="introduction_autre_but"></textarea></td></tr>
+
+	<tr><td>introduction du premier objet</td> <td><textarea cols="40" id="introduction_objet"></textarea></td></tr>
+	<tr><td>introduction d'un autre objet</td> <td><textarea cols="40" id="introduction_autre_objet"></textarea></td></tr>
+
+	<tr><td>introduction d'une définition</td> <td><textarea cols="40" id="introduction_definition_0"></textarea>&nbsp;<textarea cols="10" id="introduction_definition_1"></textarea></td></tr>
+
+	<tr><td>introduction d'un avantage</td> <td><textarea cols="20" id="introduction_avantage_0"></textarea>&nbsp;<textarea cols="20" id="introduction_avantage_1"></textarea></td></tr>
+	<tr><td>introduction d'un autre avantage</td> <td><textarea cols="40" id="introduction_autre_avantage"></textarea></td></tr>
+
+	<tr><td>introduction des figures</td><td> <textarea cols="60" id="introduction_figures"></textarea></td></tr>
+
+	<tr><td>introduction d'un mode de réalisation</td> <td><textarea cols="60" id="introduction_mdr"></textarea></td></tr>
+
+	<tr><td>titre du tableau de références</td> <td><textarea cols="60" id="titre_tableau_de_references"></textarea></td></tr>
+
+	<tr><td>réserves de fin de description</td> <td><textarea cols="60" id="reserves"></textarea></td></tr>
+
+</table>
+
+</body>
+
+</html>

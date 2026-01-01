@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<html Content-Type: text/html; charset=UTF-8>
+<meta charset="UTF-8">
+
+<head>
+<title>Préférences COCO</title>
+
+<style type="text/css">
+    button {
+      color: purple;
+      font-weight: bold;
+      font-size: 13px;
+      font-family: "Arial";
+      border-color: transparent;
+      background-color: transparent;
+    }
+</style>
+
+<script type="text/javascript">
+
+function preferences_par_defaut() {
+	var texte = "Forme du texte \n=============\n";
+	texte += "<puce='-'/> : autorise l'usage du caractère indiqué entre les guillemets comme puce pour écrire une caractéristique commençant par un retour à la ligne et cette puce. Plus précisément, le retour à la ligne et la puce seront ignorés dans le vocabulaire de COCO.\n";
+	texte += "<tableau_de_references='oui'/> : ajoute un tableau des références utilisées dans les figures\n";
+	texte += "<champ_joker_reference=''/> : caractère(s) indiquant l'emplacement du numéro de référence\n";
+	texte += "<numpar='oui'/>\n";
+	texte += "<lang_text='fr'/>\n";
+	texte += "<references='oui'/>\n";
+	texte += "<titres='oui'/> : mettre le mot 'oui' entre les guillemets pour indiquer si on veut que des titres de parties apparaissent dans le projet de demande de brevet.\n";
+	texte += "\n\nForme des revendications\n";
+	texte += "=======================\n";
+	texte += "<dependance='multiple'/> : mettre 'unique_seulement' pour n'avoir aucune dépendance multiple. Mettre 'unique' pour autoriser les dépendances multiples uniquement dans les revendications dont aucune autre ne dépend.\n";
+	texte += "<rayer=''/> : les revendications dont les numéros sont listés entre guillemets, séparés par des espaces, sont rayées du jeu de revendications. En revanche, elles sont maintenues dans la description, de manière à ce que la matière reste disponible pour des limitations ultérieures ou des divisions de la demande.\n";
+	texte += "<references=''/> : les références disparaissent des revendications si on place le mot 'non' entre les guillemets.\n";
+	texte += "\n\nVider les préférences pour recharger les préférences par défaut";
+	return texte;
+}
+
+function charger_preferences() {
+  var preferences = window.opener.getCookie("preferences");
+  if (preferences == "") {
+	preferences = preferences_par_defaut();
+	alert("Préférences vides => chargement des préférences par défaut\n\n");
+  }
+  window.document.getElementById('preferences').value = preferences;
+}
+
+function modifier_preferences() {
+  window.opener.setCookie("preferences", window.document.getElementById('preferences').value.trim(), 365);
+  window.opener.preferences = window.opener.ChargerPreferences();
+  window.opener.Calcul(1);
+  window.close();
+}
+
+</script>
+</head>
+
+<body onLoad="charger_preferences()">
+
+<button onclick="modifier_preferences()">Sauvegarder</button>
+
+<div id="conteneur" width="100%">
+	<textarea id="preferences" style="width: 100%" rows="40"></textarea>
+</div>
+</body>
+
+</html>
