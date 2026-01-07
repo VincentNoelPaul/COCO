@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COCO - Compact UI Mockup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Light theme */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f7fa;
+            --bg-tertiary: #e8ecf1;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --border-color: #cbd5e0;
+            --accent-primary: #4f46e5;
+            --accent-hover: #4338ca;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+
+            /* Tag colors - modernized */
+            --tag-objet: #fee2e2;
+            --tag-nouveau: #fef3c7;
+            --tag-connu: #d1fae5;
+            --tag-domaine: #99f6e4;
+            --tag-prequalificatif: #fce7f3;
+            --tag-postqualificatif: #f3e8ff;
+            --tag-edt: #cffafe;
+            --tag-complement: #e5e7eb;
+            --tag-mdr: #fef9e7;
+            --tag-ref: #fecaca;
+            --tag-option: #fed7aa;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow: hidden;
+        }
+
+        /* Dark mode */
+        body.dark-mode {
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --bg-tertiary: #4a5568;
+            --text-primary: #f7fafc;
+            --text-secondary: #cbd5e0;
+            --border-color: #4a5568;
+        }
+
+        /* Compact Navigation Bar */
+        .navbar {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            height: 48px;
+        }
+
+        .navbar-brand {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        /* Compact Buttons */
+        .btn {
+            padding: 0.375rem 0.75rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 0.375rem 0.5rem;
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .btn-icon {
+            padding: 0.375rem;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.625rem;
+            background: var(--bg-tertiary);
+            border-radius: 9999px;
+            font-size: 0.6875rem;
+            font-weight: 500;
+        }
+
+        .status-indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Layout with Collapsible Sidebar */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 48px);
+        }
+
+        /* Collapsible Sidebar */
+        .sidebar {
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            width: 0;
+            overflow: hidden;
+            transition: width 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.open {
+            width: 220px;
+        }
+
+        .sidebar-content {
+            padding: 0.75rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .sidebar-section {
+            margin-bottom: 1.25rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-item {
+            padding: 0.375rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.8125rem;
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .sidebar-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        /* Tag Legend */
+        .tag-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.375rem;
+        }
+
+        .tag-item {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.6875rem;
+        }
+
+        .tag-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+            border: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        /* Sidebar Toggle Button */
+        .sidebar-toggle {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 48px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-left: none;
+            border-radius: 0 4px 4px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            z-index: 10;
+            transition: left 0.3s ease;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .sidebar.open + .editor-container .sidebar-toggle {
+            left: 220px;
+        }
+
+        /* Editor Container */
+        .editor-container {
+            flex: 1;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Compact Toolbar */
+        .editor-toolbar {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+            background: var(--bg-secondary);
+            min-height: 40px;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 0.375rem;
+            align-items: center;
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border-color);
+        }
+
+        .toolbar-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        /* Select Input */
+        select, input[type="number"] {
+            padding: 0.25rem 0.375rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        /* Split View Container */
+        .split-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            gap: 1px;
+            background: var(--border-color);
+        }
+
+        .split-container.vertical {
+            flex-direction: column;
+        }
+
+        .split-pane {
+            flex: 1;
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 200px;
+        }
+
+        .split-pane-header {
+            padding: 0.375rem 0.75rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-secondary);
+        }
+
+        .split-pane-content {
+            flex: 1;
+            overflow: auto;
+        }
+
+        /* Editor Dual-Layer System */
+        .editor-dual-layer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            padding: 0.5rem;
+        }
+
+        .editor-layer-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        #editor-source {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.5rem;
+            color: var(--text-primary);
+            resize: none;
+            z-index: 2;
+        }
+
+        #editor-highlight {
+            position: absolute;
+            top: -11px;
+            left: 3px;
+            width: 100%;
+            height: 100%;
+            padding: 0.5rem;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        #editor-source:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        /* Highlighted Tags */
+        .highlight-objet { background: var(--tag-objet); }
+        .highlight-nouveau { background: var(--tag-nouveau); }
+        .highlight-connu { background: var(--tag-connu); }
+        .highlight-domaine { background: var(--tag-domaine); }
+        .highlight-prequalificatif { background: var(--tag-prequalificatif); }
+        .highlight-postqualificatif { background: var(--tag-postqualificatif); }
+        .highlight-edt { background: var(--tag-edt); }
+
+        /* Output Preview */
+        .output-preview {
+            font-family: 'Times New Roman', serif;
+            font-size: 14px;
+            line-height: 1.8;
+            padding: 0.75rem;
+        }
+
+        .output-preview h2 {
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 1rem 0;
+        }
+
+        .output-preview h3 {
+            font-weight: bold;
+            font-size: 16px;
+            margin: 0.75rem 0;
+        }
+
+        .output-preview p {
+            margin: 0.375rem 0;
+            text-align: justify;
+        }
+
+        /* Demo Notice */
+        .demo-notice {
+            background: linear-gradient(135deg, var(--accent-primary), #7c3aed);
+            color: white;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8125rem;
+        }
+
+        .demo-notice button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+
+        .demo-notice button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Fullscreen Mode */
+        body.fullscreen .navbar,
+        body.fullscreen .editor-toolbar,
+        body.fullscreen .sidebar,
+        body.fullscreen .sidebar-toggle,
+        body.fullscreen .split-pane-header,
+        body.fullscreen .demo-notice {
+            display: none;
+        }
+
+        body.fullscreen .main-container {
+            height: 100vh;
+        }
+
+        body.fullscreen .split-pane-content {
+            padding: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar.open {
+                width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Demo Notice -->
+    <div class="demo-notice">
+        <div>
+            <strong>🎨 COCO Compact Mockup</strong> - Maximum text space | Press F11 for fullscreen
+        </div>
+        <button onclick="toggleDarkMode()">🌓 Dark</button>
+    </div>
+
+    <!-- Compact Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span>📝</span>
+            <span>COCO</span>
+        </div>
+        <div class="navbar-actions">
+            <button class="btn btn-ghost" onclick="showInfo()">Prefs</button>
+            <button class="btn btn-ghost" onclick="showInfo()">Perso</button>
+            <button class="btn btn-ghost" onclick="showInfo()">Cmd</button>
+            <div class="status-badge">
+                <div class="status-indicator"></div>
+                Auto
+            </div>
+            <button class="btn btn-primary">💾 Sauv.</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Collapsible Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Projets</div>
+                    <select style="width: 100%;" onchange="showInfo()">
+                        <option>Nouveau projet</option>
+                        <option>Projet 1</option>
+                        <option>Projet 2</option>
+                    </select>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Navigation</div>
+                    <div class="sidebar-item active">📄 Éditeur</div>
+                    <div class="sidebar-item">📋 Balises</div>
+                    <div class="sidebar-item">🔍 Références</div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Balises</div>
+                    <div class="tag-legend">
+                        <div class="tag-item">
+                            <div class="tag-color" style="background: var(--tag-objet);"></div>
+                            <span>Objet</span>
+                        </div>
+                        <div class="tag-item">
+                            <div class="tag-color" style="background: var(--tag-nouveau);"></div>
+                            <span>Nouveau</span>
+                        </div>
+                        <div class="tag-item">
+                            <div class="tag-color" style="background: var(--tag-connu);"></div>
+                            <span>Connu</span>
+                        </div>
+                        <div class="tag-item">
+                            <div class="tag-color" style="background: var(--tag-domaine);"></div>
+                            <span>Domaine</span>
+                        </div>
+                        <div class="tag-item">
+                            <div class="tag-color" style="background: var(--tag-edt);"></div>
+                            <span>État de l'art</span>
+                        </div>
+                        <div class="tag-item">
+                            <div class="tag-color" style="background: var(--tag-mdr);"></div>
+                            <span>Mode réal.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Editor Container -->
+        <main class="editor-container">
+            <!-- Sidebar Toggle Button -->
+            <div class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+                ☰
+            </div>
+
+            <!-- Compact Toolbar -->
+            <div class="editor-toolbar">
+                <div class="toolbar-group">
+                    <label class="toolbar-label">
+                        <input type="checkbox" checked onchange="toggleHighlight(this)">
+                        <span>Balises</span>
+                    </label>
+                </div>
+                <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <button class="btn btn-secondary btn-icon" onclick="toggleSplitOrientation()" title="Toggle Orientation">
+                        <span id="split-icon">⬌</span>
+                    </button>
+                </div>
+                <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <span class="toolbar-label">Auto:</span>
+                    <input type="number" value="50" style="width: 50px;" onchange="showInfo()">
+                    <span class="toolbar-label">frappes</span>
+                </div>
+                <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <button class="btn btn-secondary" onclick="insertDemo()">📝 Exemple</button>
+                    <button class="btn btn-secondary" onclick="showInfo()">🔍</button>
+                    <button class="btn btn-secondary btn-icon" onclick="toggleFullscreen()" title="Fullscreen (F11)">⛶</button>
+                </div>
+            </div>
+
+            <!-- Split View -->
+            <div class="split-container" id="splitContainer">
+                <!-- Editor Pane -->
+                <div class="split-pane">
+                    <div class="split-pane-header">
+                        <span>✏️ Source</span>
+                        <span style="font-size: 0.6875rem;">Tapez ici</span>
+                    </div>
+                    <div class="split-pane-content" style="padding: 0;">
+                        <div class="editor-dual-layer">
+                            <div class="editor-layer-container">
+                                <div id="editor-highlight"></div>
+                                <textarea id="editor-source" spellcheck="false" oninput="syncHighlight(); generateOutput();"><objet>Un dispositif</objet> <prequalificatif>innovant</prequalificatif> de <domaine>traitement de données</domaine>, comprenant:
+- <nouveau>un processeur</nouveau>
+- <connu>une mémoire</connu>
+- <edt>des moyens de communication</edt></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Output Preview Pane -->
+                <div class="split-pane">
+                    <div class="split-pane-header">
+                        <span>📄 Texte généré</span>
+                        <span style="font-size: 0.6875rem;">Temps réel</span>
+                    </div>
+                    <div class="split-pane-content" style="padding: 0;">
+                        <div id="output-preview" class="output-preview">
+                            <!-- Generated output appears here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Sync highlighting with textarea content
+        function syncHighlight() {
+            const source = document.getElementById('editor-source');
+            const highlight = document.getElementById('editor-highlight');
+
+            if (!source || !highlight) return;
+
+            let text = source.value;
+
+            // Simple tag highlighting (simulating your tag recognition)
+            text = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/&lt;objet&gt;(.*?)&lt;\/objet&gt;/g, '<span class="highlight-objet">&lt;objet&gt;$1&lt;/objet&gt;</span>')
+                .replace(/&lt;nouveau&gt;(.*?)&lt;\/nouveau&gt;/g, '<span class="highlight-nouveau">&lt;nouveau&gt;$1&lt;/nouveau&gt;</span>')
+                .replace(/&lt;connu&gt;(.*?)&lt;\/connu&gt;/g, '<span class="highlight-connu">&lt;connu&gt;$1&lt;/connu&gt;</span>')
+                .replace(/&lt;domaine&gt;(.*?)&lt;\/domaine&gt;/g, '<span class="highlight-domaine">&lt;domaine&gt;$1&lt;/domaine&gt;</span>')
+                .replace(/&lt;prequalificatif&gt;(.*?)&lt;\/prequalificatif&gt;/g, '<span class="highlight-prequalificatif">&lt;prequalificatif&gt;$1&lt;/prequalificatif&gt;</span>')
+                .replace(/&lt;edt&gt;(.*?)&lt;\/edt&gt;/g, '<span class="highlight-edt">&lt;edt&gt;$1&lt;/edt&gt;</span>');
+
+            highlight.innerHTML = text;
+
+            // Sync scroll
+            highlight.scrollTop = source.scrollTop;
+            highlight.scrollLeft = source.scrollLeft;
+        }
+
+        // Generate formatted output (simulating COCO's text generation)
+        function generateOutput() {
+            const source = document.getElementById('editor-source');
+            const output = document.getElementById('output-preview');
+
+            if (!source || !output) return;
+
+            let text = source.value;
+
+            // Remove tags and format the output
+            let formatted = text
+                .replace(/<objet>(.*?)<\/objet>/g, '<strong>$1</strong>')
+                .replace(/<prequalificatif>(.*?)<\/prequalificatif>/g, '$1')
+                .replace(/<domaine>(.*?)<\/domaine>/g, '$1')
+                .replace(/<nouveau>(.*?)<\/nouveau>/g, '$1')
+                .replace(/<connu>(.*?)<\/connu>/g, '$1')
+                .replace(/<edt>(.*?)<\/edt>/g, '$1');
+
+            // Simple formatting for demo
+            formatted = '<h3>Description</h3><p>' + formatted.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>') + '</p>';
+
+            output.innerHTML = formatted;
+        }
+
+        // Toggle split orientation
+        function toggleSplitOrientation() {
+            const container = document.getElementById('splitContainer');
+            const icon = document.getElementById('split-icon');
+
+            if (container.classList.contains('vertical')) {
+                container.classList.remove('vertical');
+                icon.textContent = '⬌';
+            } else {
+                container.classList.add('vertical');
+                icon.textContent = '⬍';
+            }
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Toggle fullscreen
+        function toggleFullscreen() {
+            document.body.classList.toggle('fullscreen');
+        }
+
+        // Listen for F11 key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F11') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+
+        function toggleHighlight(checkbox) {
+            const highlight = document.getElementById('editor-highlight');
+            const source = document.getElementById('editor-source');
+            if (checkbox.checked) {
+                highlight.style.display = 'block';
+                source.style.color = 'var(--text-primary)';
+            } else {
+                highlight.style.display = 'none';
+                source.style.color = 'var(--text-primary)';
+            }
+        }
+
+        function insertDemo() {
+            const source = document.getElementById('editor-source');
+            source.value = `<domaine>Un système de navigation</domaine> pour véhicule automobile, caractérisé en ce qu'il comprend:
+
+<nouveau>un module GPS</nouveau> configuré pour déterminer une position géographique,
+<nouveau>un processeur</nouveau> configuré pour calculer un itinéraire,
+<connu>un écran tactile</connu> configuré pour afficher ledit itinéraire,
+<edt>des moyens de communication sans fil</edt>.
+
+<prequalificatif>Le système</prequalificatif> selon la revendication 1, caractérisé en ce que <nouveau>le processeur</nouveau> est configuré pour mettre à jour l'itinéraire en temps réel.`;
+            syncHighlight();
+            generateOutput();
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function showInfo() {
+            alert('Ceci est un mockup interactif. Les fonctionnalités complètes seront implémentées dans la version finale.');
+        }
+
+        // Initialize
+        syncHighlight();
+        generateOutput();
+
+        // Sync scroll between textarea and highlight
+        const editorSource = document.getElementById('editor-source');
+        if (editorSource) {
+            editorSource.addEventListener('scroll', function() {
+                const highlight = document.getElementById('editor-highlight');
+                if (highlight) {
+                    highlight.scrollTop = this.scrollTop;
+                    highlight.scrollLeft = this.scrollLeft;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
