@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COCO - Modern UI Mockup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Light theme */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f7fa;
+            --bg-tertiary: #e8ecf1;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --border-color: #cbd5e0;
+            --accent-primary: #4f46e5;
+            --accent-hover: #4338ca;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+
+            /* Tag colors - modernized */
+            --tag-objet: #fee2e2;
+            --tag-nouveau: #fef3c7;
+            --tag-connu: #d1fae5;
+            --tag-domaine: #99f6e4;
+            --tag-prequalificatif: #fce7f3;
+            --tag-postqualificatif: #f3e8ff;
+            --tag-edt: #cffafe;
+            --tag-complement: #e5e7eb;
+            --tag-mdr: #fef9e7;
+            --tag-ref: #fecaca;
+            --tag-option: #fed7aa;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Dark mode */
+        body.dark-mode {
+            --bg-primary: #1a202c;
+            --bg-secondary: #2d3748;
+            --bg-tertiary: #4a5568;
+            --text-primary: #f7fafc;
+            --text-secondary: #cbd5e0;
+            --border-color: #4a5568;
+        }
+
+        /* Top Navigation Bar */
+        .navbar {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Modern Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border-color);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-tertiary);
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--accent-primary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+
+        /* Main Layout */
+        .main-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: calc(100vh - 70px);
+            gap: 0;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .sidebar-item {
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-item:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .sidebar-item.active {
+            background: var(--accent-primary);
+            color: white;
+        }
+
+        /* Tag Legend */
+        .tag-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .tag-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .tag-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Editor Area */
+        .editor-container {
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-toolbar {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border-color);
+        }
+
+        /* Select Input */
+        select, input[type="number"] {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-tertiary);
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Editor Dual-Layer System (Option A) */
+        .editor-dual-layer {
+            position: relative;
+            flex: 1;
+            padding: 1.5rem;
+            overflow: hidden;
+        }
+
+        .editor-layer-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        #editor-source {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            color: var(--text-primary);
+            resize: none;
+            z-index: 2;
+        }
+
+        #editor-highlight {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 1rem;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        #editor-source:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Highlighted Tags */
+        .highlight-objet { background: var(--tag-objet); }
+        .highlight-nouveau { background: var(--tag-nouveau); }
+        .highlight-connu { background: var(--tag-connu); }
+        .highlight-domaine { background: var(--tag-domaine); }
+        .highlight-prequalificatif { background: var(--tag-prequalificatif); }
+        .highlight-postqualificatif { background: var(--tag-postqualificatif); }
+        .highlight-edt { background: var(--tag-edt); }
+
+        /* Tab System */
+        .tab-container {
+            display: flex;
+            gap: 2rem;
+            padding: 1rem 1.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            color: var(--accent-primary);
+            border-bottom-color: var(--accent-primary);
+        }
+
+        .tab-content {
+            display: none;
+            height: 100%;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Demo Content */
+        .demo-notice {
+            background: linear-gradient(135deg, var(--accent-primary), #7c3aed);
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.875rem;
+        }
+
+        .demo-notice button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .demo-notice button:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Comparison View */
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100%;
+            gap: 1px;
+            background: var(--border-color);
+        }
+
+        .comparison-panel {
+            background: var(--bg-primary);
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .comparison-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .comparison-features {
+            list-style: none;
+            margin-top: 1.5rem;
+        }
+
+        .comparison-features li {
+            padding: 0.75rem 0;
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+
+        .comparison-features li::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Demo Notice -->
+    <div class="demo-notice">
+        <div>
+            <strong>🎨 COCO Modernization Mockup</strong> - Compare Option A (Modern Styling) vs Option B (Code Editor)
+        </div>
+        <button onclick="toggleDarkMode()">🌓 Toggle Dark Mode</button>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span>📝</span>
+            <span>COCO</span>
+        </div>
+        <div class="navbar-actions">
+            <button class="btn btn-ghost" onclick="showInfo()">Préférences</button>
+            <button class="btn btn-ghost" onclick="showInfo()">Personnalisation</button>
+            <button class="btn btn-ghost" onclick="showInfo()">Commandes</button>
+            <div class="status-badge">
+                <div class="status-indicator"></div>
+                Sauvegardé
+            </div>
+            <button class="btn btn-primary">
+                💾 Sauvegarder
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Navigation</div>
+                <div class="sidebar-item active">📄 Éditeur</div>
+                <div class="sidebar-item">📋 Balises</div>
+                <div class="sidebar-item">🔍 Références</div>
+                <div class="sidebar-item">⚙️ Options</div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Projets</div>
+                <select style="width: 100%;" onchange="showInfo()">
+                    <option>Nouveau projet</option>
+                    <option>Projet 1</option>
+                    <option>Projet 2</option>
+                </select>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Légende des balises</div>
+                <div class="tag-legend">
+                    <div class="tag-item">
+                        <div class="tag-color" style="background: var(--tag-objet);"></div>
+                        <span>Objet</span>
+                    </div>
+                    <div class="tag-item">
+                        <div class="tag-color" style="background: var(--tag-nouveau);"></div>
+                        <span>Nouveau</span>
+                    </div>
+                    <div class="tag-item">
+                        <div class="tag-color" style="background: var(--tag-connu);"></div>
+                        <span>Connu</span>
+                    </div>
+                    <div class="tag-item">
+                        <div class="tag-color" style="background: var(--tag-domaine);"></div>
+                        <span>Domaine</span>
+                    </div>
+                    <div class="tag-item">
+                        <div class="tag-color" style="background: var(--tag-edt);"></div>
+                        <span>État de l'art</span>
+                    </div>
+                    <div class="tag-item">
+                        <div class="tag-color" style="background: var(--tag-mdr);"></div>
+                        <span>Mode de réalisation</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Editor Container -->
+        <main class="editor-container">
+            <!-- Tabs -->
+            <div class="tab-container">
+                <div class="tab active" onclick="switchTab('optionA')">Option A: Modern Styling</div>
+                <div class="tab" onclick="switchTab('optionB')">Option B: Code Editor</div>
+                <div class="tab" onclick="switchTab('comparison')">Comparaison</div>
+            </div>
+
+            <!-- Option A Content -->
+            <div id="optionA" class="tab-content active">
+                <div class="editor-toolbar">
+                    <div class="toolbar-group">
+                        <label style="font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" checked onchange="toggleHighlight(this)">
+                            Afficher balises colorées
+                        </label>
+                    </div>
+                    <div class="toolbar-divider"></div>
+                    <div class="toolbar-group">
+                        <span style="font-size: 0.875rem;">Auto-save:</span>
+                        <input type="number" value="50" style="width: 60px;" onchange="showInfo()">
+                        <span style="font-size: 0.875rem;">frappes</span>
+                    </div>
+                    <div class="toolbar-divider"></div>
+                    <div class="toolbar-group">
+                        <button class="btn btn-secondary" onclick="insertDemo()">📝 Insérer exemple</button>
+                        <button class="btn btn-secondary" onclick="showInfo()">🔍 Rechercher</button>
+                    </div>
+                </div>
+
+                <div class="editor-dual-layer">
+                    <div class="editor-layer-container">
+                        <div id="editor-highlight"></div>
+                        <textarea id="editor-source" spellcheck="false" oninput="syncHighlight()"><objet>Un dispositif</objet> <prequalificatif>innovant</prequalificatif> de <domaine>traitement de données</domaine>, comprenant:
+- <nouveau>un processeur</nouveau>
+- <connu>une mémoire</connu>
+- <edt>des moyens de communication</edt></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Option B Content -->
+            <div id="optionB" class="tab-content">
+                <div class="editor-toolbar">
+                    <div class="toolbar-group">
+                        <button class="btn btn-secondary" onclick="showInfo()">⚙️ Paramètres éditeur</button>
+                    </div>
+                    <div class="toolbar-divider"></div>
+                    <div class="toolbar-group">
+                        <span style="font-size: 0.875rem;">Avec CodeMirror 6 ou Monaco Editor:</span>
+                    </div>
+                </div>
+
+                <div style="padding: 2rem; flex: 1;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; padding: 2rem; height: 100%;">
+                        <h3 style="margin-bottom: 1rem;">✨ Option B: Éditeur de Code Moderne</h3>
+                        <div class="comparison-features">
+                            <li>Numéros de ligne</li>
+                            <li>Coloration syntaxique native et performante</li>
+                            <li>Multi-curseurs et sélection multiple</li>
+                            <li>Recherche/remplacement avancé</li>
+                            <li>Pliage de code (code folding)</li>
+                            <li>Auto-complétion intelligente</li>
+                            <li>Minimap de navigation</li>
+                            <li>Support du copier-coller riche</li>
+                            <li>Thèmes personnalisables</li>
+                            <li>Mode plein écran</li>
+                        </div>
+                        <p style="margin-top: 2rem; padding: 1rem; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">
+                            <strong>Note:</strong> Nécessite l'intégration d'une bibliothèque tierce (CodeMirror 6 ou Monaco Editor).
+                            Fonctionne 100% hors ligne une fois intégrée.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Content -->
+            <div id="comparison" class="tab-content">
+                <div class="comparison-container">
+                    <div class="comparison-panel">
+                        <div class="comparison-title">
+                            <span>🎨</span>
+                            <span>Option A: Modern Styling</span>
+                        </div>
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                            Modernise l'interface autour de votre système dual-layer existant
+                        </p>
+                        <ul class="comparison-features">
+                            <li>Conserve votre système de coloration qui fonctionne</li>
+                            <li>Design moderne et épuré</li>
+                            <li>Mode sombre inclus</li>
+                            <li>Navigation améliorée avec sidebar</li>
+                            <li>Boutons et inputs redessinés</li>
+                            <li>Meilleure organisation visuelle</li>
+                            <li>Transitions et animations fluides</li>
+                            <li>Responsive (s'adapte à la taille d'écran)</li>
+                            <li>Aucune dépendance externe</li>
+                            <li>Migration facile et sûre</li>
+                        </ul>
+                        <div style="margin-top: 2rem; padding: 1rem; background: #d1fae5; border-left: 4px solid #10b981; border-radius: 4px;">
+                            <strong>✓ Recommandé pour commencer</strong><br>
+                            Amélioration visuelle immédiate sans risque
+                        </div>
+                    </div>
+
+                    <div class="comparison-panel">
+                        <div class="comparison-title">
+                            <span>🚀</span>
+                            <span>Option B: Code Editor</span>
+                        </div>
+                        <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                            Remplace le système par un éditeur professionnel
+                        </p>
+                        <ul class="comparison-features">
+                            <li>Éditeur de niveau professionnel</li>
+                            <li>Performances optimales (grandes fichiers)</li>
+                            <li>Numéros de ligne natifs</li>
+                            <li>Recherche/remplacement puissant</li>
+                            <li>Multi-curseurs</li>
+                            <li>Indentation automatique</li>
+                            <li>Raccourcis clavier avancés</li>
+                            <li>Extensible facilement</li>
+                            <li>Utilisé par VS Code (Monaco)</li>
+                            <li>Communauté active et documentation</li>
+                        </ul>
+                        <div style="margin-top: 2rem; padding: 1rem; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">
+                            <strong>⚠️ Plus de travail d'intégration</strong><br>
+                            Nécessite migration des règles de coloration
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Sync highlighting with textarea content
+        function syncHighlight() {
+            const source = document.getElementById('editor-source');
+            const highlight = document.getElementById('editor-highlight');
+
+            let text = source.value;
+
+            // Simple tag highlighting (simulating your tag recognition)
+            text = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/&lt;objet&gt;(.*?)&lt;\/objet&gt;/g, '<span class="highlight-objet">&lt;objet&gt;$1&lt;/objet&gt;</span>')
+                .replace(/&lt;nouveau&gt;(.*?)&lt;\/nouveau&gt;/g, '<span class="highlight-nouveau">&lt;nouveau&gt;$1&lt;/nouveau&gt;</span>')
+                .replace(/&lt;connu&gt;(.*?)&lt;\/connu&gt;/g, '<span class="highlight-connu">&lt;connu&gt;$1&lt;/connu&gt;</span>')
+                .replace(/&lt;domaine&gt;(.*?)&lt;\/domaine&gt;/g, '<span class="highlight-domaine">&lt;domaine&gt;$1&lt;/domaine&gt;</span>')
+                .replace(/&lt;prequalificatif&gt;(.*?)&lt;\/prequalificatif&gt;/g, '<span class="highlight-prequalificatif">&lt;prequalificatif&gt;$1&lt;/prequalificatif&gt;</span>')
+                .replace(/&lt;edt&gt;(.*?)&lt;\/edt&gt;/g, '<span class="highlight-edt">&lt;edt&gt;$1&lt;/edt&gt;</span>');
+
+            highlight.innerHTML = text;
+
+            // Sync scroll
+            highlight.scrollTop = source.scrollTop;
+            highlight.scrollLeft = source.scrollLeft;
+        }
+
+        function toggleHighlight(checkbox) {
+            const highlight = document.getElementById('editor-highlight');
+            const source = document.getElementById('editor-source');
+            if (checkbox.checked) {
+                highlight.style.display = 'block';
+                source.style.color = 'var(--text-primary)';
+            } else {
+                highlight.style.display = 'none';
+                source.style.color = 'var(--text-primary)';
+            }
+        }
+
+        function insertDemo() {
+            const source = document.getElementById('editor-source');
+            source.value = `<domaine>Un système de navigation</domaine> pour véhicule automobile, caractérisé en ce qu'il comprend:
+
+<nouveau>un module GPS</nouveau> configuré pour déterminer une position géographique,
+<nouveau>un processeur</nouveau> configuré pour calculer un itinéraire,
+<connu>un écran tactile</connu> configuré pour afficher ledit itinéraire,
+<edt>des moyens de communication sans fil</edt>.
+
+<prequalificatif>Le système</prequalificatif> selon la revendication 1, caractérisé en ce que <nouveau>le processeur</nouveau> est configuré pour mettre à jour l'itinéraire en temps réel.`;
+            syncHighlight();
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+
+        function showInfo() {
+            alert('Ceci est un mockup interactif. Les fonctionnalités complètes seront implémentées dans la version finale.');
+        }
+
+        // Initialize
+        syncHighlight();
+
+        // Sync scroll between textarea and highlight
+        document.getElementById('editor-source').addEventListener('scroll', function() {
+            document.getElementById('editor-highlight').scrollTop = this.scrollTop;
+            document.getElementById('editor-highlight').scrollLeft = this.scrollLeft;
+        });
+    </script>
+</body>
+</html>
