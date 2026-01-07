@@ -1,119 +1,225 @@
 <!DOCTYPE html>
-
-<html Content-Type: text/html; charset=UTF-8>
-<meta charset="UTF-8">
-
+<html lang="fr">
 <head>
-	<title>COCO (test)</title>
-	<style>
+<meta charset="UTF-8">
+<title>COCO</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-	textarea {
-		font-family: "Arial";
-		font-size: 14px;
-	}
+:root {
+	--bg-primary: #ffffff;
+	--bg-secondary: #f5f7fa;
+	--bg-tertiary: #e8ecf1;
+	--text-primary: #1a202c;
+	--text-secondary: #4a5568;
+	--border-color: #cbd5e0;
+	--accent-primary: #4f46e5;
+	--accent-hover: #4338ca;
+	--shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+}
 
-	.class_rev_indep_reconnue, .tagname_objet {
-		background: #FFAAAA; /* rouge */
-	}
-	.class_rev_dep_reconnue, .tagname_nouveau {
-		background: #FFFFA7; /* jaune */
-	}
-	.tagname_connu, .tagname_revendications_saisies, .tagname_but, .tagname_definition {
-		background: #D4FFD4; /* vert */
-	}
-	.tagname_domaine, .tagname_domaine_particulier {
-		background: #7FFFD4; /* vert fonce */
-	}
-	.tagname_prequalificatif {
-		background: #FFE1FF; /* rose clair */
-	} 
-	.tagname_postqualificatif {
-		background: #F0D4F0; /* rose plus foncé */
-	} 
-	.tagname_edt, .tagname_inconvenient, .tagname_resume_inconvenients, .tagname_probleme, .tagname_contenu {
-		background: #CFFFFF; /* turquoise */
-	} 
-	.tagname_postcomplement, .tagname_precomplement, .tagname_verbe, .tagname_avantage, .tagname_precision {
-		background: #E4E4E4; /* gris */
-	} 
-	.tagname_mdr {
-		background: #FFF7EB; /* parchemin */
-	}
-	.tagname_ref, .tagname_noref {
-		background: #FFB6B6; /* rouge */
-	}
-	.tagname_option, .tagname_alternative {
-		background: #FFDEAB; /* orange clair */
-	}
-	.tagname_extraitrefs {
-		background: #FFFFCC; /* sable */
-	}
+body {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+	background: var(--bg-secondary);
+	color: var(--text-primary);
+	line-height: 1.6;
+	overflow: hidden;
+}
 
+body.dark-mode {
+	--bg-primary: #1a202c;
+	--bg-secondary: #2d3748;
+	--bg-tertiary: #4a5568;
+	--text-primary: #f7fafc;
+	--text-secondary: #cbd5e0;
+	--border-color: #4a5568;
+}
 
-    #conteneur {
-      position: relative;
-      top : 0px;
-      left : 0px;
-      text-align: left;
- 	  font-family: "Arial";
-	  font-size: 14px;
-	  height: 100%;
-	  width: 100%;
-     }
-    #blocsource {
-      position : absolute;
-      top : 0px;
-      left : 0px;
-      width: 100%;
-	  background-color: transparent;
-    }
-    #blocsous, #blocsur {
-      position : absolute;
-      display: block;
-      width: 100%;
-      top : -11px;
-      left : 3px;
-     }
+.class_rev_indep_reconnue, .tagname_objet { background: #FFAAAA; }
+.class_rev_dep_reconnue, .tagname_nouveau { background: #FFFFA7; }
+.tagname_connu, .tagname_revendications_saisies, .tagname_but, .tagname_definition { background: #D4FFD4; }
+.tagname_domaine, .tagname_domaine_particulier { background: #7FFFD4; }
+.tagname_prequalificatif { background: #FFE1FF; }
+.tagname_postqualificatif { background: #F0D4F0; }
+.tagname_edt, .tagname_inconvenient, .tagname_resume_inconvenients, .tagname_probleme, .tagname_contenu { background: #CFFFFF; }
+.tagname_postcomplement, .tagname_precomplement, .tagname_verbe, .tagname_avantage, .tagname_precision { background: #E4E4E4; }
+.tagname_mdr { background: #FFF7EB; }
+.tagname_ref, .tagname_noref { background: #FFB6B6; }
+.tagname_option, .tagname_alternative { background: #FFDEAB; }
+.tagname_extraitrefs { background: #FFFFCC; }
 
-     #blocsous {
-      color: transparent;
-     }
+.toolbar {
+	background: var(--bg-primary);
+	border-bottom: 1px solid var(--border-color);
+	padding: 0.5rem 0.75rem;
+	display: flex;
+	gap: 0.5rem;
+	align-items: center;
+	flex-wrap: wrap;
+	min-height: 40px;
+	box-shadow: var(--shadow-sm);
+}
 
-     #cadresource {
-      width: 100%;
-     }
+.toolbar-group { display: flex; gap: 0.375rem; align-items: center; }
+.toolbar-divider { width: 1px; height: 20px; background: var(--border-color); }
+.toolbar-label {
+	font-size: 0.75rem;
+	color: var(--text-secondary);
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+}
 
-    .estcache {
-	  color: transparent;
-	  visibility: hidden;
-     }
+button {
+	padding: 0.375rem 0.75rem;
+	border: 1px solid var(--border-color);
+	border-radius: 4px;
+	font-size: 0.8125rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+	background: var(--bg-tertiary);
+	color: var(--text-primary);
+	font-family: inherit;
+}
 
-    .estvisible {
-	  color: black;
-	  visibility: visible;
-     }
+button:hover { background: var(--border-color); }
+button.btn-primary { background: var(--accent-primary); color: white; border-color: var(--accent-primary); }
+button.btn-primary:hover { background: var(--accent-hover); }
+button.btn-icon { padding: 0.375rem; width: 32px; height: 32px; }
 
-    textarea.estvisible {
-	  color: black;
-    }
+select, input[type="number"], input[type="text"] {
+	padding: 0.25rem 0.375rem;
+	border: 1px solid var(--border-color);
+	border-radius: 4px;
+	background: var(--bg-primary);
+	color: var(--text-primary);
+	font-size: 0.75rem;
+}
 
-    textarea.estinvisible {
-	  color: transparent;
-    }
+select:focus, input:focus { outline: none; border-color: var(--accent-primary); }
+input[type="checkbox"] { cursor: pointer; }
+textarea { font-family: "Arial"; font-size: 14px; }
+textarea.estvisible { color: black; }
+textarea.estinvisible { color: transparent; }
+body.dark-mode textarea.estvisible { color: var(--text-primary); }
 
-    button {
-      color: purple;
-      font-weight: bold;
-      font-size: 13px;
-      font-family: "Arial";
-      border-color: transparent;
-      background-color: transparent;
-    }
+.main-container { display: flex; height: calc(100vh - 40px); }
+.split-container {
+	display: flex;
+	flex: 1;
+	overflow: hidden;
+	background: var(--border-color);
+	position: relative;
+}
 
-	</style>
+.split-container.vertical { flex-direction: column; }
+.split-pane {
+	background: var(--bg-primary);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	min-width: 200px;
+}
 
+.split-pane.left { flex: 0 0 50%; }
+.split-pane.right { flex: 1; }
+.split-divider {
+	background: var(--border-color);
+	position: relative;
+	z-index: 10;
+	transition: background 0.2s;
+}
+
+.split-container:not(.vertical) .split-divider { width: 4px; cursor: col-resize; }
+.split-container.vertical .split-divider { height: 4px; cursor: row-resize; }
+.split-divider:hover, .split-divider.dragging { background: var(--accent-primary); }
+.split-divider::after {
+	content: '';
+	position: absolute;
+	background: var(--bg-tertiary);
+	border-radius: 2px;
+}
+
+.split-container:not(.vertical) .split-divider::after {
+	width: 2px;
+	height: 40px;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.split-container.vertical .split-divider::after {
+	width: 40px;
+	height: 2px;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+body.dragging { user-select: none; cursor: col-resize; }
+body.dragging.vertical { cursor: row-resize; }
+
+.split-pane-header {
+	padding: 0.375rem 0.75rem;
+	background: var(--bg-tertiary);
+	border-bottom: 1px solid var(--border-color);
+	font-weight: 600;
+	font-size: 0.75rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	color: var(--text-secondary);
+}
+
+.split-pane-content { flex: 1; overflow: auto; }
+
+#conteneur {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	padding: 0.5rem;
+}
+
+#blocsource { position: absolute; top: 0; left: 0; width: 100%; background-color: transparent; }
+#blocsous, #blocsur { position: absolute; display: block; width: 100%; top: -11px; left: 3px; }
+#blocsous { color: transparent; }
+
+#cadresource {
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	border: 1px solid var(--border-color);
+	border-radius: 4px;
+	padding: 0.5rem;
+	color: var(--text-primary);
+	resize: none;
+	z-index: 2;
+	overflow: hidden;
+}
+
+#cadresource:focus { outline: none; border-color: var(--accent-primary); }
+.estcache { color: transparent; visibility: hidden; }
+.estvisible { color: black; visibility: visible; }
+body.dark-mode .estvisible { color: var(--text-primary); }
+
+#cadrecible {
+	font-family: 'Times New Roman', serif;
+	font-size: 14px;
+	line-height: 1.8;
+	padding: 0.75rem;
+	height: 100%;
+	overflow: auto;
+}
+
+#cadrecible h2 { text-align: center; font-weight: bold; font-size: 18px; margin: 1rem 0; }
+#cadrecible h3 { font-weight: bold; font-size: 16px; margin: 0.75rem 0; }
+#cadrecible p { margin: 0.375rem 0; text-align: justify; }
+
+</style>
 
 <script type="text/javascript">
+
 
 function deleteCookie(cname) {
   document.cookie = cname+"=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -4468,7 +4574,14 @@ function Frappe(e, numerofrappe) {
 	}
 	if (BasculeAffichage()==true) {
 		if (window.opener.opener.opener.document.getElementById('copiehtml').style.borderStyle=="inset") {
-				window.opener.opener.opener.document.getElementById('cadrecible').innerHTML = texte_cible_html;
+				// Write to parent window if it exists
+		if (window.opener && window.opener.opener && window.opener.opener.opener && window.opener.opener.opener.document.getElementById('cadrecible')) {
+			window.opener.opener.opener.document.getElementById('cadrecible').innerHTML = texte_cible_html;
+		}
+		// Also write to internal div
+		if (document.getElementById('cadrecible')) {
+			document.getElementById('cadrecible').innerHTML = texte_cible_html;
+		}
 				return;
 			}
 		if (window.opener.opener.opener.document.getElementById('copiebrute').style.borderStyle=="inset") {
@@ -4550,7 +4663,14 @@ function Calcul(numerofrappe) {
 
 		window.opener.document.getElementById('cadrebalises').innerHTML = AfficheBalises_ref();
 		window.opener.opener.document.getElementById('cadrebalises').innerHTML = AfficheBalises_non_ref();
-		window.opener.opener.opener.document.getElementById('cadrecible').innerHTML = texte_cible;
+		// Write to parent window if it exists
+		if (window.opener && window.opener.opener && window.opener.opener.opener && window.opener.opener.opener.document.getElementById('cadrecible')) {
+			window.opener.opener.opener.document.getElementById('cadrecible').innerHTML = texte_cible;
+		}
+		// Also write to internal div
+		if (document.getElementById('cadrecible')) {
+			document.getElementById('cadrecible').innerHTML = texte_cible;
+		}
 		window.document.getElementById('blocsous').innerHTML = '<p>'+textesous+'</p>';
 		window.document.getElementById('blocsur').innerHTML = '<p>'+textesur+'</p>';
 	}
@@ -4581,49 +4701,161 @@ Initialisation();
 </script>
 </head>
 
-<body onLoad='tailles();Go(event);' onresize='tailles();' onkeyup='Go(event);''>
+<body onLoad='tailles();Go(event);' onresize='tailles();' onkeyup='Go(event);'>
 
-<table><tbody>
-	<tr>
-		<td align="center">
-			<a id="source" style="font-weight: bold;">&nbsp;</a>&nbsp;&nbsp;
-			<a id="tagnames" onclick="ListerTagnames();">&nbsp;</a>&nbsp;&nbsp;
-			<a id="champs" onclick="ListerChamps();">&nbsp;</a>&nbsp;&nbsp;
-			<button onclick="OuvrirPreferences()">Prefs</button>
-			<button onclick="OuvrirPersonnalisation()">Perso</button>
-			<button onclick="OuvrirCommandes()">Cmd</button>
-			<input id="avecbalises" type="checkbox" checked onchange="ReaffichageBalises();">&lt;...&gt;&nbsp;&nbsp;
-			<br />
-			<input id="numerofrappe" hidden>&nbsp;&nbsp;
-			<a id="sauvegarder"></a><button id="sauversource" onclick="SauverSourceForce()">maintenant</button><a id="ou"></a>&nbsp;<a id="dans">&nbsp;&nbsp;</a><input id="numerosauvegarde" size="2" onchange="ModifieIntervalleSauvegarde()" style="color: black;" ><a id="frappes">&nbsp;</a>
-			<input id="datefrappe" hidden>&nbsp;&nbsp;
-			<input id="tempsecoule" hidden>&nbsp;&nbsp;
-			<input id="calcul" type="checkbox" hidden>
-      <a id="ref">&nbsp;</a><select id="listereferencessauvegarde" onchange="ModifieReferenceDossier()"></select>
-      <input id="referencedossier" hidden>
-		</td>
-	</tr>
-</tbody></table>
+<div class="toolbar">
+	<div class="toolbar-group">
+		<a id="source" style="font-weight: bold; cursor: pointer;">&nbsp;</a>
+	</div>
+	<div class="toolbar-divider"></div>
+	<div class="toolbar-group">
+		<a id="tagnames" onclick="ListerTagnames();" style="cursor: pointer;">&nbsp;</a>
+		<a id="champs" onclick="ListerChamps();" style="cursor: pointer;">&nbsp;</a>
+	</div>
+	<div class="toolbar-divider"></div>
+	<div class="toolbar-group">
+		<button onclick="OuvrirPreferences()">Prefs</button>
+		<button onclick="OuvrirPersonnalisation()">Perso</button>
+		<button onclick="OuvrirCommandes()">Cmd</button>
+	</div>
+	<div class="toolbar-divider"></div>
+	<div class="toolbar-group">
+		<label class="toolbar-label">
+			<input id="avecbalises" type="checkbox" checked onchange="ReaffichageBalises();">
+			<span>&lt;...&gt;</span>
+		</label>
+	</div>
+	<div class="toolbar-divider"></div>
+	<div class="toolbar-group">
+		<button class="btn-icon" onclick="toggleSplitOrientation()" title="Orientation">
+			<span id="split-icon">⬌</span>
+		</button>
+	</div>
+	<div class="toolbar-divider"></div>
+	<div class="toolbar-group">
+		<span class="toolbar-label"><a id="sauvegarder"></a></span>
+		<button id="sauversource" onclick="SauverSourceForce()" class="btn-primary">💾</button>
+		<span class="toolbar-label"><a id="ou"></a><a id="dans">&nbsp;</a></span>
+		<input id="numerosauvegarde" type="number" size="2" onchange="ModifieIntervalleSauvegarde()" style="width: 50px;">
+		<span class="toolbar-label"><a id="frappes">&nbsp;</a></span>
+	</div>
+	<div class="toolbar-divider"></div>
+	<div class="toolbar-group">
+		<span class="toolbar-label"><a id="ref">&nbsp;</a></span>
+		<select id="listereferencessauvegarde" onchange="ModifieReferenceDossier()"></select>
+	</div>
+	<div class="toolbar-divider"></div>
+	<div class="toolbar-group">
+		<button class="btn-icon" onclick="toggleDarkMode()" title="Mode sombre">🌓</button>
+	</div>
+	<input id="numerofrappe" hidden>
+	<input id="datefrappe" hidden>
+	<input id="tempsecoule" hidden>
+	<input id="calcul" type="checkbox" hidden>
+	<input id="referencedossier" hidden>
+</div>
 
-
-<table border="0" width="100%">
-	<tr width="100%">
-		<td width="100%">
-			<div id="conteneur" width="100%">
-			    <label id="blocsous" width="100%">
-			    	Source
-			    </label>
-			    <label id="blocsur" width="100%">
-			    	Source
-			    </label>
-			    <label id="blocsource" width="100%">
-			    	<textarea id="cadresource" style="background-color: transparent; overflow: hidden;"></textarea>
-			    </label>
+<div class="main-container">
+	<div class="split-container" id="splitContainer">
+		<div class="split-pane left" id="leftPane">
+			<div class="split-pane-header">
+				<span>✏️ Source</span>
+				<span style="font-size: 0.6875rem;">Tapez ici</span>
 			</div>
-		</td>
-	</tr>
-</table>
+			<div class="split-pane-content" style="padding: 0;">
+				<div id="conteneur">
+					<label id="blocsous" width="100%">Source</label>
+					<label id="blocsur" width="100%">Source</label>
+					<label id="blocsource" width="100%">
+						<textarea id="cadresource" style="background-color: transparent;"></textarea>
+					</label>
+				</div>
+			</div>
+		</div>
+
+		<div class="split-divider" id="splitDivider"></div>
+
+		<div class="split-pane right" id="rightPane">
+			<div class="split-pane-header">
+				<span>📄 Texte généré</span>
+				<span style="font-size: 0.6875rem;">Temps réel</span>
+			</div>
+			<div class="split-pane-content" style="padding: 0;">
+				<div id="cadrecible"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+function toggleSplitOrientation() {
+	const container = document.getElementById('splitContainer');
+	const icon = document.getElementById('split-icon');
+	const leftPane = document.getElementById('leftPane');
+	if (container.classList.contains('vertical')) {
+		container.classList.remove('vertical');
+		document.body.classList.remove('vertical');
+		icon.textContent = '⬌';
+		leftPane.style.flexBasis = '50%';
+	} else {
+		container.classList.add('vertical');
+		document.body.classList.add('vertical');
+		icon.textContent = '⬍';
+		leftPane.style.flexBasis = '50%';
+	}
+}
+
+let isDragging = false, startPos = 0, startSize = 0;
+const splitDivider = document.getElementById('splitDivider');
+const splitContainer = document.getElementById('splitContainer');
+const leftPane = document.getElementById('leftPane');
+
+if (splitDivider) {
+	splitDivider.addEventListener('mousedown', function(e) {
+		isDragging = true;
+		const isVertical = splitContainer.classList.contains('vertical');
+		startPos = isVertical ? e.clientY : e.clientX;
+		const rect = leftPane.getBoundingClientRect();
+		startSize = isVertical ? rect.height : rect.width;
+		splitDivider.classList.add('dragging');
+		document.body.classList.add('dragging');
+		if (isVertical) document.body.classList.add('vertical');
+		e.preventDefault();
+	});
+}
+
+document.addEventListener('mousemove', function(e) {
+	if (!isDragging) return;
+	const isVertical = splitContainer.classList.contains('vertical');
+	const currentPos = isVertical ? e.clientY : e.clientX;
+	const delta = currentPos - startPos;
+	const newSize = startSize + delta;
+	const containerRect = splitContainer.getBoundingClientRect();
+	const containerSize = isVertical ? containerRect.height : containerRect.width;
+	const minSize = 200, maxSize = containerSize - minSize - 4;
+	if (newSize >= minSize && newSize <= maxSize) {
+		leftPane.style.flexBasis = newSize + 'px';
+	}
+});
+
+document.addEventListener('mouseup', function() {
+	if (isDragging) {
+		isDragging = false;
+		splitDivider.classList.remove('dragging');
+		document.body.classList.remove('dragging');
+		document.body.classList.remove('vertical');
+	}
+});
+
+function toggleDarkMode() {
+	document.body.classList.toggle('dark-mode');
+	localStorage.setItem('COCO_darkMode', document.body.classList.contains('dark-mode') ? 'true' : 'false');
+}
+
+if (localStorage.getItem('COCO_darkMode') === 'true') {
+	document.body.classList.add('dark-mode');
+}
+</script>
 
 </body>
-
 </html>
