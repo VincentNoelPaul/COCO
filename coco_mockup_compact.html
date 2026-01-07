@@ -333,8 +333,8 @@
             display: flex;
             flex: 1;
             overflow: hidden;
-            gap: 1px;
             background: var(--border-color);
+            position: relative;
         }
 
         .split-container.vertical {
@@ -342,12 +342,75 @@
         }
 
         .split-pane {
-            flex: 1;
             background: var(--bg-primary);
             display: flex;
             flex-direction: column;
             overflow: hidden;
             min-width: 200px;
+        }
+
+        .split-pane.left {
+            flex: 0 0 50%;
+        }
+
+        .split-pane.right {
+            flex: 1;
+        }
+
+        /* Resizable Divider */
+        .split-divider {
+            background: var(--border-color);
+            position: relative;
+            z-index: 10;
+            transition: background 0.2s;
+        }
+
+        .split-container:not(.vertical) .split-divider {
+            width: 4px;
+            cursor: col-resize;
+        }
+
+        .split-container.vertical .split-divider {
+            height: 4px;
+            cursor: row-resize;
+        }
+
+        .split-divider:hover,
+        .split-divider.dragging {
+            background: var(--accent-primary);
+        }
+
+        .split-divider::after {
+            content: '';
+            position: absolute;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+        }
+
+        .split-container:not(.vertical) .split-divider::after {
+            width: 2px;
+            height: 40px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .split-container.vertical .split-divider::after {
+            width: 40px;
+            height: 2px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Prevent text selection during drag */
+        body.dragging {
+            user-select: none;
+            cursor: col-resize;
+        }
+
+        body.dragging.vertical {
+            cursor: row-resize;
         }
 
         .split-pane-header {
@@ -625,7 +688,7 @@
             <!-- Split View -->
             <div class="split-container" id="splitContainer">
                 <!-- Editor Pane -->
-                <div class="split-pane">
+                <div class="split-pane left" id="leftPane">
                     <div class="split-pane-header">
                         <span>✏️ Source</span>
                         <span style="font-size: 0.6875rem;">Tapez ici</span>
@@ -643,8 +706,11 @@
                     </div>
                 </div>
 
+                <!-- Resizable Divider -->
+                <div class="split-divider" id="splitDivider"></div>
+
                 <!-- Output Preview Pane -->
-                <div class="split-pane">
+                <div class="split-pane right" id="rightPane">
                     <div class="split-pane-header">
                         <span>📄 Texte généré</span>
                         <span style="font-size: 0.6875rem;">Temps réel</span>
@@ -716,15 +782,77 @@
         function toggleSplitOrientation() {
             const container = document.getElementById('splitContainer');
             const icon = document.getElementById('split-icon');
+            const leftPane = document.getElementById('leftPane');
 
             if (container.classList.contains('vertical')) {
                 container.classList.remove('vertical');
+                document.body.classList.remove('vertical');
                 icon.textContent = '⬌';
+                // Reset to 50% for horizontal
+                leftPane.style.flexBasis = '50%';
             } else {
                 container.classList.add('vertical');
+                document.body.classList.add('vertical');
                 icon.textContent = '⬍';
+                // Reset to 50% for vertical
+                leftPane.style.flexBasis = '50%';
             }
         }
+
+        // Resizable split pane functionality
+        let isDragging = false;
+        let startPos = 0;
+        let startSize = 0;
+
+        const splitDivider = document.getElementById('splitDivider');
+        const splitContainer = document.getElementById('splitContainer');
+        const leftPane = document.getElementById('leftPane');
+
+        if (splitDivider) {
+            splitDivider.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                const isVertical = splitContainer.classList.contains('vertical');
+                startPos = isVertical ? e.clientY : e.clientX;
+
+                const rect = leftPane.getBoundingClientRect();
+                startSize = isVertical ? rect.height : rect.width;
+
+                splitDivider.classList.add('dragging');
+                document.body.classList.add('dragging');
+                if (isVertical) {
+                    document.body.classList.add('vertical');
+                }
+
+                e.preventDefault();
+            });
+        }
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+
+            const isVertical = splitContainer.classList.contains('vertical');
+            const currentPos = isVertical ? e.clientY : e.clientX;
+            const delta = currentPos - startPos;
+            const newSize = startSize + delta;
+
+            const containerRect = splitContainer.getBoundingClientRect();
+            const containerSize = isVertical ? containerRect.height : containerRect.width;
+            const minSize = 200; // minimum pane size
+            const maxSize = containerSize - minSize - 4; // -4 for divider width
+
+            if (newSize >= minSize && newSize <= maxSize) {
+                leftPane.style.flexBasis = newSize + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isDragging) {
+                isDragging = false;
+                splitDivider.classList.remove('dragging');
+                document.body.classList.remove('dragging');
+                document.body.classList.remove('vertical');
+            }
+        });
 
         // Toggle sidebar
         function toggleSidebar() {
