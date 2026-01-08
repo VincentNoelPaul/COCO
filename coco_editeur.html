@@ -4983,8 +4983,15 @@ document.addEventListener('mousemove', function(e) {
 	if (!isDragging) return;
 
 	const isVertical = splitContainer.classList.contains('vertical');
+	const isSwapped = splitContainer.classList.contains('swapped');
 	const currentPos = isVertical ? e.clientY : e.clientX;
-	const delta = currentPos - startPos;
+
+	// Invert delta when panes are swapped
+	let delta = currentPos - startPos;
+	if (isSwapped) {
+		delta = -delta;
+	}
+
 	const newSize = startSize + delta;
 
 	const containerRect = splitContainer.getBoundingClientRect();
