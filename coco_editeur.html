@@ -1176,7 +1176,7 @@ function Vocabulaire() {
 	copie_brute : ['Copie brute', 'Plain format'],
 	titre_source : ['Saisies en français', 'Inputs in English'],
 	messageCOCO_action : ['COCO jabote ici', 'COCO parrots here'],
-	messageCOCO_inaction : ['COCO se tait', 'COCO is silent'],
+	messageCOCO_inaction : ['COCO est gelé', 'COCO is frozen'],
 	message_doublon : ['!!! doublon !!!', '!!! more than once !!!'],
 	reference : ['Réf ', 'Ref'],
 	hors_mdr : ['partie générale', 'general part'],
@@ -4784,6 +4784,23 @@ function BasculeAffichage() {
 	}
 }
 
+function marchearret() {
+	// retourne vrai si on met en marche, faux si on arrete
+	if (window.document.getElementById('continu').checked == true) {
+		window.document.getElementById('continu').checked = false;
+		window.document.getElementById('messageCOCO_inaction').style = "visibility: visible";
+		window.document.getElementById('messageCOCO_action').style = "visibility: hidden";
+		return false;
+	}
+	else {
+	    Calcul(window.document.getElementById('numerofrappe').value);
+		window.document.getElementById('continu').checked = true;
+		window.document.getElementById('messageCOCO_inaction').style = "visibility: hidden";
+		window.document.getElementById('messageCOCO_action').style = "visibility: visible";
+		return true;
+	}
+}
+
 function Parametres() {
 	source = Standardise(window.document.getElementById('cadresource').value);
 
@@ -4831,8 +4848,32 @@ function Parametres() {
 	source = Espace_references(source);
 	source = Reordonne_references(source);
 	window.document.getElementById('cadresource').value = source;
-	window.opener.opener.opener.document.getElementById('messageCOCO_action').innerHTML = expression_messageCOCO_action;
-	window.opener.opener.opener.document.getElementById('messageCOCO_inaction').innerHTML = "<span style='color:red'>" +expression_messageCOCO_inaction + "</span>";
+	window.document.getElementById('messageCOCO_action').innerHTML = expression_messageCOCO_action;
+	window.document.getElementById('messageCOCO_inaction').innerHTML = "<span style='color:red'>" +expression_messageCOCO_inaction + "</span>";
+}
+
+function copiehtml() {
+	if (!marchearret()) {
+		window.document.getElementById('copiehtml').style="border-style:inset;";
+		window.document.getElementById('copiebrute').disabled = true;
+	}
+	else {
+		window.document.getElementById('copiehtml').style="";
+		window.document.getElementById('copiebrute').disabled = false;
+	}
+	Frappe(event, window.document.getElementById('numerofrappe').value);
+}
+
+function copiebrute() {
+ 	if (!marchearret()) {
+		window.document.getElementById('copiebrute').style="border-style:inset;";
+		window.document.getElementById('copiehtml').disabled = true;
+	}
+	else {
+		window.document.getElementById('copiebrute').style="";
+		window.document.getElementById('copiehtml').disabled = false;
+		Go(event);
+	}
 }
 
 function SurTablette() { 
@@ -4876,15 +4917,15 @@ function Frappe(e, numerofrappe) {
 		window.document.getElementById('avecbalises').checked = !window.document.getElementById('avecbalises').checked;
 	}
 	if (BasculeAffichage()==true) {
-		if (window.opener.opener.opener.document.getElementById('copiehtml').style.borderStyle=="inset") {
-				window.opener.opener.opener.document.getElementById('cadrecible').innerHTML = texte_cible_html;
+		if (window.document.getElementById('copiehtml').style.borderStyle=="inset") {
+				window.document.getElementById('cadrecible').innerHTML = texte_cible_html;
 				// Also write to internal div
 				if (document.getElementById('cadrecible')) {
 					document.getElementById('cadrecible').innerHTML = texte_cible_html;
 				}
 				return;
 			}
-		if (window.opener.opener.opener.document.getElementById('copiebrute').style.borderStyle=="inset") {
+		if (window.document.getElementById('copiebrute').style.borderStyle=="inset") {
 				return;
 			}
 		setTimeout('Calcul('+numerofrappe+')', 1000);
@@ -4899,22 +4940,22 @@ function Calcul(numerofrappe) {
 	var tempsecoule = Date.now() - Date.parse(window.document.getElementById('datefrappe').value);
 	window.document.getElementById('tempsecoule').value = tempsecoule;
 	var dernierefrappe = parseInt(window.document.getElementById('numerofrappe').value);
-  var numerofrappeentier = parseInt(numerofrappe);
+    var numerofrappeentier = parseInt(numerofrappe);
 	if ((numerofrappeentier < dernierefrappe) || (dernierefrappe == 0)) {
-   return;
-  }
+     return;
+    }
   if (parseInt(window.document.getElementById('numerosauvegarde').value) < 0) {
      SauverSource(referencedossier);
     window.document.getElementById('numerosauvegarde').value = intervallesauvegarde;
   }
 	window.document.getElementById('calcul').checked = true;
-	if (window.opener.opener.opener.document.getElementById('continu').checked == true) {
+	if (window.document.getElementById('continu').checked == true) {
 		Parametres();
-		window.opener.opener.opener.document.getElementById('messageCOCO_action').style = "visibility: visible";	
-		window.opener.opener.opener.document.getElementById('messageCOCO_inaction').style = "visibility: hidden";	
+		window.document.getElementById('messageCOCO_action').style = "visibility: visible";	
+		window.document.getElementById('messageCOCO_inaction').style = "visibility: hidden";	
 		source = MiseAPlat(source);
-		window.opener.opener.opener.document.getElementById('copiebrute').innerHTML = expression_copie_brute;
-		window.opener.opener.opener.document.getElementById('copiehtml').innerHTML = expression_copie_html;
+		window.document.getElementById('copiebrute').innerHTML = expression_copie_brute;
+		window.document.getElementById('copiehtml').innerHTML = expression_copie_html;
 
 		reponse = [];
 		Traitement(source);
@@ -4961,19 +5002,12 @@ function Calcul(numerofrappe) {
 		texte_cible = SurligneInterrogation(MiseEnRelief(texte_cible));
 		texte_cible_html = AfficheBalisesHtml(texte_cible);
 
-		window.opener.document.getElementById('cadrebalises').innerHTML = AfficheBalises_ref();
-		window.opener.opener.document.getElementById('cadrebalises').innerHTML = AfficheBalises_non_ref();
-		window.opener.opener.opener.document.getElementById('cadrecible').innerHTML = texte_cible;
 		// Also write to internal div
 		if (document.getElementById('cadrecible')) {
 			document.getElementById('cadrecible').innerHTML = texte_cible;
 		}
 		window.document.getElementById('blocsous').innerHTML = '<p>'+textesous+'</p>';
 		window.document.getElementById('blocsur').innerHTML = '<p>'+textesur+'</p>';
-	}
-	else {
-		window.opener.opener.opener.document.getElementById('messageCOCO_action').style = "visibility: hidden";	
-		window.opener.opener.opener.document.getElementById('messageCOCO_inaction').style = "visibility: visible";
 	}
 	window.document.getElementById('calcul').checked = false;
 }
@@ -5014,12 +5048,14 @@ Initialisation();
 			<button onclick="toggleFullscreen()" title="Fullscreen (F11)" id="fullscreenBtn">⛶</button>
 			<button onclick="toggleDarkMode()" title="Mode sombre">🌓</button>
 			<input id="avecbalises" type="checkbox" checked onchange="ReaffichageBalises();">&lt;...&gt;&nbsp;&nbsp;
-			<br />
+			&bull;
 			<input id="numerofrappe" hidden>&nbsp;&nbsp;
 			<a id="sauvegarder"></a><button id="sauversource" onclick="SauverSourceForce()">maintenant</button><a id="ou"></a>&nbsp;<a id="dans">&nbsp;&nbsp;</a><input id="numerosauvegarde" size="2" onchange="ModifieIntervalleSauvegarde()" style="color: black;" ><a id="frappes">&nbsp;</a>
 			<input id="datefrappe" hidden>&nbsp;&nbsp;
 			<input id="tempsecoule" hidden>&nbsp;&nbsp;
 			<input id="calcul" type="checkbox" hidden>
+			<button id="copiehtml" onclick="copiehtml()">Copie HTML</button>&nbsp;&nbsp;
+			<button id="copiebrute" onclick="copiebrute()">Copie brute</button>
       <a id="ref">&nbsp;</a><select id="listereferencessauvegarde" onchange="ModifieReferenceDossier()"></select>
       <input id="referencedossier" hidden>
 		</td>
@@ -5032,7 +5068,7 @@ Initialisation();
 		<!-- Editor Pane (Left) -->
 		<div class="split-pane left" id="leftPane">
 			<div class="split-pane-header">
-				<span>✏️ Source</span>
+				<span>Source</span>
 				<span style="font-size: 11px;">Tapez ici</span>
 			</div>
 			<div class="split-pane-content" style="padding: 0;">
@@ -5056,8 +5092,10 @@ Initialisation();
 		<!-- Output Preview Pane (Right) -->
 		<div class="split-pane right" id="rightPane">
 			<div class="split-pane-header">
-				<span>📄 Texte généré</span>
-				<span style="font-size: 11px;">Temps réel</span>
+				<a id="messageCOCO_action">&nbsp;</a>
+			    <a id="messageCOCO_inaction">&nbsp;</a>&nbsp;&nbsp;
+			    <input id="continu" type="checkbox" checked hidden><button onchange="Calcul()" hidden>Calculer</button>&nbsp;
+				<span style="font-size: 11px;">Projet COCOté</span>
 			</div>
 			<div class="split-pane-content" style="padding: 0;">
 				<div id="cadrecible"></div>
