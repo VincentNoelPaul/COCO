@@ -216,6 +216,140 @@
 		text-decoration: underline;
 	}
 
+	/* Split-Pane Layout */
+	.main-container {
+		display: flex;
+		height: calc(100vh - 90px); /* Account for toolbar height */
+	}
+
+	.split-container {
+		display: flex;
+		flex: 1;
+		overflow: hidden;
+		background: var(--border-color);
+		position: relative;
+	}
+
+	.split-container.vertical {
+		flex-direction: column;
+	}
+
+	.split-pane {
+		background: var(--bg-primary);
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		min-width: 200px;
+	}
+
+	.split-pane.left {
+		flex: 0 0 50%;
+	}
+
+	.split-pane.right {
+		flex: 1;
+	}
+
+	/* Resizable Divider */
+	.split-divider {
+		background: var(--border-color);
+		position: relative;
+		z-index: 10;
+		transition: background 0.2s;
+	}
+
+	.split-container:not(.vertical) .split-divider {
+		width: 4px;
+		cursor: col-resize;
+	}
+
+	.split-container.vertical .split-divider {
+		height: 4px;
+		cursor: row-resize;
+	}
+
+	.split-divider:hover,
+	.split-divider.dragging {
+		background: var(--accent-primary);
+	}
+
+	.split-divider::after {
+		content: '';
+		position: absolute;
+		background: var(--bg-tertiary);
+		border-radius: 2px;
+	}
+
+	.split-container:not(.vertical) .split-divider::after {
+		width: 2px;
+		height: 40px;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+
+	.split-container.vertical .split-divider::after {
+		width: 40px;
+		height: 2px;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+
+	body.dragging {
+		user-select: none;
+		cursor: col-resize;
+	}
+
+	body.dragging.vertical {
+		cursor: row-resize;
+	}
+
+	.split-pane-header {
+		padding: 6px 12px;
+		background: var(--bg-tertiary);
+		border-bottom: 1px solid var(--border-color);
+		font-weight: 600;
+		font-size: 12px;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		color: var(--text-secondary);
+	}
+
+	.split-pane-content {
+		flex: 1;
+		overflow: auto;
+	}
+
+	/* Output Preview */
+	#cadrecible {
+		font-family: 'Times New Roman', serif;
+		font-size: 14px;
+		line-height: 1.8;
+		padding: 12px;
+		height: 100%;
+		overflow: auto;
+	}
+
+	#cadrecible h2 {
+		text-align: center;
+		font-weight: bold;
+		font-size: 18px;
+		margin: 1rem 0;
+	}
+
+	#cadrecible h3 {
+		font-weight: bold;
+		font-size: 16px;
+		margin: 0.75rem 0;
+	}
+
+	#cadrecible p {
+		margin: 0.375rem 0;
+		text-align: justify;
+	}
+
 	</style>
 
 
@@ -4575,6 +4709,10 @@ function Frappe(e, numerofrappe) {
 	if (BasculeAffichage()==true) {
 		if (window.opener.opener.opener.document.getElementById('copiehtml').style.borderStyle=="inset") {
 				window.opener.opener.opener.document.getElementById('cadrecible').innerHTML = texte_cible_html;
+				// Also write to internal div
+				if (document.getElementById('cadrecible')) {
+					document.getElementById('cadrecible').innerHTML = texte_cible_html;
+				}
 				return;
 			}
 		if (window.opener.opener.opener.document.getElementById('copiebrute').style.borderStyle=="inset") {
@@ -4657,6 +4795,10 @@ function Calcul(numerofrappe) {
 		window.opener.document.getElementById('cadrebalises').innerHTML = AfficheBalises_ref();
 		window.opener.opener.document.getElementById('cadrebalises').innerHTML = AfficheBalises_non_ref();
 		window.opener.opener.opener.document.getElementById('cadrecible').innerHTML = texte_cible;
+		// Also write to internal div
+		if (document.getElementById('cadrecible')) {
+			document.getElementById('cadrecible').innerHTML = texte_cible;
+		}
 		window.document.getElementById('blocsous').innerHTML = '<p>'+textesous+'</p>';
 		window.document.getElementById('blocsur').innerHTML = '<p>'+textesur+'</p>';
 	}
@@ -4698,6 +4840,7 @@ Initialisation();
 			<button onclick="OuvrirPreferences()">Prefs</button>
 			<button onclick="OuvrirPersonnalisation()">Perso</button>
 			<button onclick="OuvrirCommandes()">Cmd</button>
+			<button onclick="toggleSplitOrientation()" title="Toggle orientation" id="splitOrientBtn">⬌</button>
 			<button onclick="toggleDarkMode()" title="Mode sombre">🌓</button>
 			<input id="avecbalises" type="checkbox" checked onchange="ReaffichageBalises();">&lt;...&gt;&nbsp;&nbsp;
 			<br />
@@ -4713,23 +4856,44 @@ Initialisation();
 </tbody></table>
 
 
-<table border="0" width="100%">
-	<tr width="100%">
-		<td width="100%">
-			<div id="conteneur" width="100%">
-			    <label id="blocsous" width="100%">
-			    	Source
-			    </label>
-			    <label id="blocsur" width="100%">
-			    	Source
-			    </label>
-			    <label id="blocsource" width="100%">
-			    	<textarea id="cadresource" style="background-color: transparent; overflow: hidden;"></textarea>
-			    </label>
+<div class="main-container">
+	<div class="split-container" id="splitContainer">
+		<!-- Editor Pane (Left) -->
+		<div class="split-pane left" id="leftPane">
+			<div class="split-pane-header">
+				<span>✏️ Source</span>
+				<span style="font-size: 11px;">Tapez ici</span>
 			</div>
-		</td>
-	</tr>
-</table>
+			<div class="split-pane-content" style="padding: 0;">
+				<div id="conteneur" width="100%">
+					<label id="blocsous" width="100%">
+						Source
+					</label>
+					<label id="blocsur" width="100%">
+						Source
+					</label>
+					<label id="blocsource" width="100%">
+						<textarea id="cadresource" style="background-color: transparent; overflow: hidden;"></textarea>
+					</label>
+				</div>
+			</div>
+		</div>
+
+		<!-- Resizable Divider -->
+		<div class="split-divider" id="splitDivider"></div>
+
+		<!-- Output Preview Pane (Right) -->
+		<div class="split-pane right" id="rightPane">
+			<div class="split-pane-header">
+				<span>📄 Texte généré</span>
+				<span style="font-size: 11px;">Temps réel</span>
+			</div>
+			<div class="split-pane-content" style="padding: 0;">
+				<div id="cadrecible"></div>
+			</div>
+		</div>
+	</div>
+</div>
 
 <script>
 // Dark mode toggle function
@@ -4743,6 +4907,80 @@ function toggleDarkMode() {
 if (localStorage.getItem('COCO_darkMode') === 'true') {
 	document.body.classList.add('dark-mode');
 }
+
+// Toggle split orientation
+function toggleSplitOrientation() {
+	const container = document.getElementById('splitContainer');
+	const btn = document.getElementById('splitOrientBtn');
+	const leftPane = document.getElementById('leftPane');
+
+	if (container.classList.contains('vertical')) {
+		container.classList.remove('vertical');
+		document.body.classList.remove('vertical');
+		btn.textContent = '⬌';
+		leftPane.style.flexBasis = '50%';
+	} else {
+		container.classList.add('vertical');
+		document.body.classList.add('vertical');
+		btn.textContent = '⬍';
+		leftPane.style.flexBasis = '50%';
+	}
+}
+
+// Resizable split pane functionality
+let isDragging = false;
+let startPos = 0;
+let startSize = 0;
+
+const splitDivider = document.getElementById('splitDivider');
+const splitContainer = document.getElementById('splitContainer');
+const leftPane = document.getElementById('leftPane');
+
+if (splitDivider) {
+	splitDivider.addEventListener('mousedown', function(e) {
+		isDragging = true;
+		const isVertical = splitContainer.classList.contains('vertical');
+		startPos = isVertical ? e.clientY : e.clientX;
+
+		const rect = leftPane.getBoundingClientRect();
+		startSize = isVertical ? rect.height : rect.width;
+
+		splitDivider.classList.add('dragging');
+		document.body.classList.add('dragging');
+		if (isVertical) {
+			document.body.classList.add('vertical');
+		}
+
+		e.preventDefault();
+	});
+}
+
+document.addEventListener('mousemove', function(e) {
+	if (!isDragging) return;
+
+	const isVertical = splitContainer.classList.contains('vertical');
+	const currentPos = isVertical ? e.clientY : e.clientX;
+	const delta = currentPos - startPos;
+	const newSize = startSize + delta;
+
+	const containerRect = splitContainer.getBoundingClientRect();
+	const containerSize = isVertical ? containerRect.height : containerRect.width;
+	const minSize = 200;
+	const maxSize = containerSize - minSize - 4;
+
+	if (newSize >= minSize && newSize <= maxSize) {
+		leftPane.style.flexBasis = newSize + 'px';
+	}
+});
+
+document.addEventListener('mouseup', function() {
+	if (isDragging) {
+		isDragging = false;
+		splitDivider.classList.remove('dragging');
+		document.body.classList.remove('dragging');
+		document.body.classList.remove('vertical');
+	}
+});
 </script>
 
 </body>
