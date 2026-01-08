@@ -358,6 +358,25 @@
 		text-align: justify;
 	}
 
+	/* Fullscreen mode */
+	body.fullscreen table {
+		display: none;
+	}
+
+	body.fullscreen .main-container {
+		height: 100vh;
+		margin: 0;
+	}
+
+	body.fullscreen .split-pane-header {
+		padding: 4px 12px;
+		font-size: 12px;
+	}
+
+	body.fullscreen #fullscreenBtn::before {
+		content: '⛶ ';
+	}
+
 	</style>
 
 
@@ -4850,6 +4869,7 @@ Initialisation();
 			<button onclick="OuvrirCommandes()">Cmd</button>
 			<button onclick="toggleSplitOrientation()" title="Toggle orientation" id="splitOrientBtn">⬌</button>
 			<button onclick="swapPanes()" title="Swap panes" id="swapBtn">⇄</button>
+			<button onclick="toggleFullscreen()" title="Fullscreen (F11)" id="fullscreenBtn">⛶</button>
 			<button onclick="toggleDarkMode()" title="Mode sombre">🌓</button>
 			<input id="avecbalises" type="checkbox" checked onchange="ReaffichageBalises();">&lt;...&gt;&nbsp;&nbsp;
 			<br />
@@ -4950,6 +4970,26 @@ function swapPanes() {
 	const isSwapped = container.classList.contains('swapped');
 	localStorage.setItem('COCO_panesSwapped', isSwapped ? 'true' : 'false');
 }
+
+// Toggle fullscreen mode
+function toggleFullscreen() {
+	document.body.classList.toggle('fullscreen');
+	const isFullscreen = document.body.classList.contains('fullscreen');
+	localStorage.setItem('COCO_fullscreen', isFullscreen ? 'true' : 'false');
+}
+
+// Load fullscreen preference on page load
+if (localStorage.getItem('COCO_fullscreen') === 'true') {
+	document.body.classList.add('fullscreen');
+}
+
+// F11 keyboard shortcut for fullscreen
+document.addEventListener('keydown', function(e) {
+	if (e.key === 'F11') {
+		e.preventDefault();
+		toggleFullscreen();
+	}
+});
 
 // Resizable split pane functionality
 let isDragging = false;
