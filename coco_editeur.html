@@ -377,6 +377,148 @@
 		content: '⛶ ';
 	}
 
+	/* Modal overlay system */
+	.modal-overlay {
+		display: none;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.6);
+		z-index: 9999;
+		backdrop-filter: blur(2px);
+	}
+
+	.modal-overlay.active {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.modal-container {
+		background: var(--bg-primary);
+		border-radius: 8px;
+		box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+		max-width: 90%;
+		max-height: 90%;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+	}
+
+	.modal-header {
+		padding: 16px 20px;
+		border-bottom: 1px solid var(--border-color);
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		background: var(--bg-secondary);
+	}
+
+	.modal-title {
+		font-size: 18px;
+		font-weight: 600;
+		color: var(--text-primary);
+	}
+
+	.modal-close {
+		background: transparent;
+		border: none;
+		font-size: 24px;
+		cursor: pointer;
+		color: var(--text-secondary);
+		padding: 0;
+		width: 30px;
+		height: 30px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 4px;
+	}
+
+	.modal-close:hover {
+		background: var(--hover-bg);
+	}
+
+	.modal-body {
+		padding: 20px;
+		overflow-y: auto;
+		flex: 1;
+	}
+
+	.modal-footer {
+		padding: 16px 20px;
+		border-top: 1px solid var(--border-color);
+		display: flex;
+		justify-content: flex-end;
+		gap: 10px;
+		background: var(--bg-secondary);
+	}
+
+	.modal-btn {
+		padding: 8px 20px;
+		border: none;
+		border-radius: 6px;
+		font-size: 14px;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s;
+	}
+
+	.modal-btn-primary {
+		background: var(--accent-primary);
+		color: white;
+	}
+
+	.modal-btn-primary:hover {
+		background: var(--accent-hover);
+	}
+
+	.modal-btn-secondary {
+		background: var(--bg-tertiary);
+		color: var(--text-primary);
+	}
+
+	.modal-btn-secondary:hover {
+		background: var(--hover-bg);
+	}
+
+	/* Modal table styling */
+	.modal-body table {
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	.modal-body table td {
+		padding: 8px;
+		vertical-align: top;
+	}
+
+	.modal-body table td:first-child {
+		font-weight: 500;
+		color: var(--text-secondary);
+		width: 200px;
+	}
+
+	.modal-body textarea {
+		width: 100%;
+		min-height: 40px;
+		padding: 8px;
+		border: 1px solid var(--border-color);
+		border-radius: 4px;
+		background: var(--bg-primary);
+		color: var(--text-primary);
+		font-family: inherit;
+		font-size: 13px;
+		resize: vertical;
+	}
+
+	.modal-body textarea:focus {
+		outline: none;
+		border-color: var(--accent-primary);
+	}
+
 	</style>
 
 
@@ -4864,8 +5006,8 @@ Initialisation();
 			<a id="source" style="font-weight: bold;">&nbsp;</a>&nbsp;&nbsp;
 			<a id="tagnames" onclick="ListerTagnames();">&nbsp;</a>&nbsp;&nbsp;
 			<a id="champs" onclick="ListerChamps();">&nbsp;</a>&nbsp;&nbsp;
-			<button onclick="OuvrirPreferences()">Prefs</button>
-			<button onclick="OuvrirPersonnalisation()">Perso</button>
+			<button onclick="openPreferencesModal()">⚙️ Préf.</button>
+			<button onclick="openPersoModal()">✏️ Perso</button>
 			<button onclick="OuvrirCommandes()">Cmd</button>
 			<button onclick="toggleSplitOrientation()" title="Toggle orientation" id="splitOrientBtn">⬌</button>
 			<button onclick="swapPanes()" title="Swap panes" id="swapBtn">⇄</button>
@@ -4991,6 +5133,128 @@ document.addEventListener('keydown', function(e) {
 	}
 });
 
+// ===============================
+// Modal System Functions
+// ===============================
+
+// Generic modal functions
+function openModal(modalId) {
+	const modal = document.getElementById(modalId);
+	if (modal) {
+		modal.classList.add('active');
+		document.body.style.overflow = 'hidden';
+	}
+}
+
+function closeModal(modalId) {
+	const modal = document.getElementById(modalId);
+	if (modal) {
+		modal.classList.remove('active');
+		document.body.style.overflow = '';
+	}
+}
+
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+	overlay.addEventListener('click', function(e) {
+		if (e.target === this) {
+			this.classList.remove('active');
+			document.body.style.overflow = '';
+		}
+	});
+});
+
+// Close modals with Escape key
+document.addEventListener('keydown', function(e) {
+	if (e.key === 'Escape') {
+		document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+			modal.classList.remove('active');
+			document.body.style.overflow = '';
+		});
+	}
+});
+
+// ===============================
+// Preferences Modal Functions
+// ===============================
+
+function openPreferencesModal() {
+	// Load current preferences
+	var prefs = getCookie("preferences");
+	if (prefs == "") {
+		prefs = texte_liste_prefs;
+	}
+	document.getElementById('preferences_modal').value = prefs;
+	openModal('preferencesModal');
+}
+
+function closePreferencesModal() {
+	closeModal('preferencesModal');
+}
+
+function savePreferencesModal() {
+	setCookie("preferences", document.getElementById('preferences_modal').value.trim(), 365);
+	preferences = ChargerPreferences();
+	Calcul(1);
+	closePreferencesModal();
+}
+
+// ===============================
+// Personalization Modal Functions
+// ===============================
+
+function openPersoModal() {
+	// Build the table HTML from liste_expressions_personnalisees
+	var html = '';
+	for (var i = 0; i < liste_expressions_personnalisees.length; i++) {
+		var expr_name = liste_expressions_personnalisees[i];
+		var expression = 'expression_' + expr_name;
+		var valeur_expression = eval(expression);
+
+		// Convert to readable labels
+		var label = expr_name.replace(/_/g, ' ');
+
+		if (typeof valeur_expression == 'string') {
+			html += '<tr><td style="padding: 8px; vertical-align: top;">' + label + '</td>';
+			html += '<td><textarea cols="60" id="perso_' + expr_name + '" style="width: 100%; min-height: 40px;">' + valeur_expression + '</textarea></td></tr>';
+		} else {
+			html += '<tr><td style="padding: 8px; vertical-align: top;">' + label + '</td><td>';
+			for (var j = 0; j < valeur_expression.length; j++) {
+				html += '<textarea cols="30" id="perso_' + expr_name + '_' + j + '" style="margin-right: 10px; min-height: 40px;">' + valeur_expression[j] + '</textarea>';
+			}
+			html += '</td></tr>';
+		}
+	}
+
+	document.getElementById('persoTable').innerHTML = html;
+	openModal('persoModal');
+}
+
+function closePersoModal() {
+	closeModal('persoModal');
+}
+
+function savePersoModal() {
+	// Update all expressions from the form
+	for (var i = 0; i < liste_expressions_personnalisees.length; i++) {
+		var expr_name = liste_expressions_personnalisees[i];
+		var expression = 'expression_' + expr_name;
+		var valeur_expression = eval(expression);
+
+		if (typeof valeur_expression == 'string') {
+			eval(expression + ' = document.getElementById("perso_' + expr_name + '").value');
+		} else {
+			for (var j = 0; j < valeur_expression.length; j++) {
+				eval(expression + '[' + j + '] = document.getElementById("perso_' + expr_name + '_' + j + '").value');
+			}
+		}
+	}
+
+	SauverCookiePersonnalisation('fr');
+	Calcul(1);
+	closePersoModal();
+}
+
 // Resizable split pane functionality
 let isDragging = false;
 let startPos = 0;
@@ -5053,6 +5317,43 @@ document.addEventListener('mouseup', function() {
 	}
 });
 </script>
+
+<!-- Modal Overlays -->
+<!-- Preferences Modal -->
+<div class="modal-overlay" id="preferencesModal">
+	<div class="modal-container" style="width: 700px;">
+		<div class="modal-header">
+			<span class="modal-title">⚙️ Préférences COCO</span>
+			<button class="modal-close" onclick="closePreferencesModal()">×</button>
+		</div>
+		<div class="modal-body">
+			<textarea id="preferences_modal" style="width: 100%; min-height: 400px; font-family: monospace; font-size: 13px;"></textarea>
+		</div>
+		<div class="modal-footer">
+			<button class="modal-btn modal-btn-secondary" onclick="closePreferencesModal()">Annuler</button>
+			<button class="modal-btn modal-btn-primary" onclick="savePreferencesModal()">Sauvegarder</button>
+		</div>
+	</div>
+</div>
+
+<!-- Personalization Modal -->
+<div class="modal-overlay" id="persoModal">
+	<div class="modal-container" style="width: 900px; max-height: 85vh;">
+		<div class="modal-header">
+			<span class="modal-title">✏️ Personnalisation COCO</span>
+			<button class="modal-close" onclick="closePersoModal()">×</button>
+		</div>
+		<div class="modal-body">
+			<table style="width: 100%;" id="persoTable">
+				<!-- Will be populated by JavaScript -->
+			</table>
+		</div>
+		<div class="modal-footer">
+			<button class="modal-btn modal-btn-secondary" onclick="closePersoModal()">Annuler</button>
+			<button class="modal-btn modal-btn-primary" onclick="savePersoModal()">Sauvegarder</button>
+		</div>
+	</div>
+</div>
 
 </body>
 
