@@ -234,6 +234,14 @@
 		flex-direction: column;
 	}
 
+	.split-container.swapped:not(.vertical) {
+		flex-direction: row-reverse;
+	}
+
+	.split-container.swapped.vertical {
+		flex-direction: column-reverse;
+	}
+
 	.split-pane {
 		background: var(--bg-primary);
 		display: flex;
@@ -4841,6 +4849,7 @@ Initialisation();
 			<button onclick="OuvrirPersonnalisation()">Perso</button>
 			<button onclick="OuvrirCommandes()">Cmd</button>
 			<button onclick="toggleSplitOrientation()" title="Toggle orientation" id="splitOrientBtn">⬌</button>
+			<button onclick="swapPanes()" title="Swap panes" id="swapBtn">⇄</button>
 			<button onclick="toggleDarkMode()" title="Mode sombre">🌓</button>
 			<input id="avecbalises" type="checkbox" checked onchange="ReaffichageBalises();">&lt;...&gt;&nbsp;&nbsp;
 			<br />
@@ -4908,6 +4917,11 @@ if (localStorage.getItem('COCO_darkMode') === 'true') {
 	document.body.classList.add('dark-mode');
 }
 
+// Load swap preference on page load
+if (localStorage.getItem('COCO_panesSwapped') === 'true') {
+	document.getElementById('splitContainer').classList.add('swapped');
+}
+
 // Toggle split orientation
 function toggleSplitOrientation() {
 	const container = document.getElementById('splitContainer');
@@ -4925,6 +4939,16 @@ function toggleSplitOrientation() {
 		btn.textContent = '⬍';
 		leftPane.style.flexBasis = '50%';
 	}
+}
+
+// Swap panes (switch left/right or top/bottom)
+function swapPanes() {
+	const container = document.getElementById('splitContainer');
+	container.classList.toggle('swapped');
+
+	// Save preference
+	const isSwapped = container.classList.contains('swapped');
+	localStorage.setItem('COCO_panesSwapped', isSwapped ? 'true' : 'false');
 }
 
 // Resizable split pane functionality
