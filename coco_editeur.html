@@ -3148,7 +3148,29 @@ function AnalyseBalise(chaine_balise) {
 	return null;
 }
 
-function AnalyseChaine(chaine_balise, texte) {
+// deduit le genre et le nombre de l'article place juste avant une balise (ex. : "une <nouveau ...>"), '' si aucun
+function GenreNombreArticlePrecedent(texte_avant) {
+	var res = /([^\s<>]+)\s*$/.exec(texte_avant.replace(/_n_/g, ' '));
+	if (res == null) return '';
+	var mot = res[1].toLowerCase();
+	// article elide (l') : genre inconnu, mais singulier ; le masculin redonne bien l' devant une voyelle
+	try { if ((article_defini_elide_ms.indexOf('\'') > -1) && (mot == article_defini_elide_ms.toLowerCase())) return 'ms'; }
+	catch(err) { return ''; }
+	if (mot.lastIndexOf('\'') > -1) mot = mot.substr(mot.lastIndexOf('\'') + 1);
+	if (mot == '') return '';
+	var genresnombres = ['ms', 'fs', 'mp', 'fp'];
+	for (var j = 0; j < genresnombres.length; j++) {
+		var gn = genresnombres[j];
+		try { var candidats = [eval('article_indefini_' + gn), eval('article_defini_' + gn)]; }
+		catch(err) { return ''; }
+		for (var k = 0; k < candidats.length; k++) {
+			if ((candidats[k] != '') && (candidats[k].toLowerCase() == mot)) return gn;
+		}
+	}
+	return '';
+}
+
+function AnalyseChaine(chaine_balise, texte, gn_article_precedent) {
 	var dico = '{"baliseouvrante":"", "reste":"'+chaine_balise+texte+'"}';
 	var ledico = AnalyseBalise(chaine_balise);
 	if (ledico!=null) {
@@ -3172,11 +3194,12 @@ function AnalyseChaine(chaine_balise, texte) {
 				if (cles.indexOf(tagname_gn)>-1) var genrenombre = les_details[tagname_gn];
 				else var genrenombre = '';
 				if (cles.indexOf(tagname_continu)>-1) var continu = les_details[tagname_continu];
+				if ((genrenombre == '') && gn_article_precedent) genrenombre = gn_article_precedent;
 				else var continu = '';
 			}
 			else {
 				var idobjetconcerne = '';
-				var genrenombre = '';	
+				var genrenombre = ((gn_article_precedent) ? gn_article_precedent : '');
 				var continu = '';		
 			}
 			var dico = '{"baliseouvrante":"'+ledico.baliseentiere+'", "idobjet":"'+ledico.idobjet+'", "typebalise":"'+ledico.typebalise+'", "nombalise":"'+ledico.nombalise+'", "details":"'+ledico.details+'", "idobjetconcerne":"'+idobjetconcerne+'", "genrenombre":"'+genrenombre+'", "continu":"'+continu+'", "texteinterne":"'+chaine+'", "sansparentheses":"'+avecetsansparentheses.autour+'", "entreparentheses":"'+avecetsansparentheses.entreparentheses+'", "expression_recherchee":"'+avecetsansparentheses.expression_recherchee+'", "expression_sans_parentheses":"'+avecetsansparentheses.expression_sans_parentheses+'", "balisefermante":"'+chainebalisefermante+'", "reste":"'+reste+'", "mdr":"'+mdr_global+'"}';
@@ -3320,19 +3343,21 @@ function Traitement(texte) {
 	var chaine_nouvelle_balise = '';
 	var troncon = '';
 	var reste = '';
+	var gn_article = '';
 	if (res!=null) {	
 		while (res!=null) {
 			fin = patt.lastIndex;
 			chaine_nouvelle_balise = res[0];
 			troncon = texte.substring(debut, fin - chaine_nouvelle_balise.length);
-			var ledico = AnalyseChaine(chaine_balise, troncon);
+			var ledico = AnalyseChaine(chaine_balise, troncon, gn_article);
 			ExploiteDico(ledico);
 			debut = fin;
 			chaine_balise = chaine_nouvelle_balise;
+			gn_article = GenreNombreArticlePrecedent(troncon);
 			res = patt.exec(texte);
 		}
 		troncon = texte.substr(debut, texte.length - 1);
-		var ledico =  AnalyseChaine(chaine_balise, troncon);
+		var ledico =  AnalyseChaine(chaine_balise, troncon, gn_article);
 		ExploiteDico(ledico);
 	}
 }
