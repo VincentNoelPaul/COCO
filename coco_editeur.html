@@ -2136,11 +2136,61 @@ function liste_valeurs_complementees(liste_balises, inclure_references) {
 	return liste_valeurs;
 }
 
+// met au participe present le premier mot d'un verbe conjugue (en francais seulement) :
+// "comprend" -> "comprenant", "est muni de" -> "etant muni de", "comportent" -> "comportant"
+// un verbe non reconnu est laisse tel quel
+var participes_irreguliers = {
+	'est':'étant', 'sont':'étant', 'a':'ayant', 'ont':'ayant',
+	'peut':'pouvant', 'peuvent':'pouvant', 'doit':'devant', 'doivent':'devant',
+	'fait':'faisant', 'font':'faisant', 'va':'allant', 'vont':'allant',
+	'reçoit':'recevant', 'reçoivent':'recevant', 'voit':'voyant', 'suit':'suivant', 'suivent':'suivant',
+	'inclut':'incluant', 'incluent':'incluant', 'exclut':'excluant',
+	'possède':'possédant', 'possèdent':'possédant', 'précède':'précédant', 'précèdent':'précédant',
+	'soulève':'soulevant', 'soulèvent':'soulevant', 'relève':'relevant', 'relèvent':'relevant'
+};
+
+function Participe_present_mot(mot) {
+	if (participes_irreguliers[mot]) return participes_irreguliers[mot];
+	if (/ant$/.test(mot)) return mot;
+	// participe passe (ex. : "actionnée par", "relié à") : deja correct, on ne touche pas
+	if (/(é|ée|és|ées)$/.test(mot)) return null;
+	// e accent grave dans le radical (ex. : "complète", "protège") : forme incertaine, on ne touche pas
+	if (/è[^aeiouyéè]+e(nt)?$/.test(mot)) return null;
+	var regles = [
+		[/prend$/, 'prenant'], [/prennent$/, 'prenant'],
+		[/tient$/, 'tenant'], [/tiennent$/, 'tenant'], [/vient$/, 'venant'], [/viennent$/, 'venant'],
+		[/met$/, 'mettant'], [/mettent$/, 'mettant'],
+		[/uit$/, 'uisant'], [/uisent$/, 'uisant'],
+		[/issent$/, 'issant'], [/it$/, 'issant'],
+		[/[eo]nd$/, '$&ant'],
+		[/([uo])ie$/, '$1yant'], [/([uo])ient$/, '$1yant'],
+		[/ce$/, 'çant'], [/cent$/, 'çant'], [/ge$/, 'geant'], [/gent$/, 'geant'],
+		[/ent$/, 'ant'], [/e$/, 'ant']
+	];
+	for (var i = 0; i < regles.length; i++) {
+		if (regles[i][0].test(mot)) {
+			return mot.replace(regles[i][0], regles[i][1]);
+		}
+	}
+	return null;
+}
+
+function Participe_present(expression) {
+	if ((expression == '') || (position != 0)) return expression;
+	var res = /^(\s*)([^\s']+)(.*)$/.exec(expression);
+	if (res == null) return expression;
+	var mot = res[2];
+	var participe = Participe_present_mot(mot.toLowerCase());
+	if (participe == null) return expression;
+	if (mot[0] != mot[0].toLowerCase()) participe = participe[0].toUpperCase() + participe.substr(1);
+	return res[1] + participe + res[3];
+}
+
 // comme liste_valeurs_complementees, mais chaque valeur est precedee du verbe qui lui est rattache (ex. : "comprenant une cuve")
 function liste_valeurs_complementees_avec_verbe(liste_balises, inclure_references) {
 	var liste_valeurs = [];
 	for (var index = 0; index < liste_balises.length; index++) {
-		liste_valeurs.push(ourien('', verbe(liste_balises[index]), ' ') + ValeurComplementee(liste_balises[index], inclure_references));
+		liste_valeurs.push(ourien('', Participe_present(verbe(liste_balises[index])), ' ') + ValeurComplementee(liste_balises[index], inclure_references));
 	}
 	return liste_valeurs;
 }
