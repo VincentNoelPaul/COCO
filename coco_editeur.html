@@ -2186,11 +2186,41 @@ function Participe_present(expression) {
 	return res[1] + participe + res[3];
 }
 
+// apres un verbe, la caracteristique a besoin de son article : "comprend un couvercle" (si le genre et le nombre sont connus)
+function Avec_article_indefini(balise, valeur) {
+	if ((valeur == '') || (balise.genrenombre == '')) return valeur;
+	if (tous_les_articles.includes(Decouper(valeur)[0].toLowerCase())) return valeur;
+	return liaison(article_indefini(balise.genrenombre, valeur), valeur);
+}
+
 // comme liste_valeurs_complementees, mais chaque valeur est precedee du verbe qui lui est rattache (ex. : "comprenant une cuve")
 function liste_valeurs_complementees_avec_verbe(liste_balises, inclure_references) {
 	var liste_valeurs = [];
 	for (var index = 0; index < liste_balises.length; index++) {
-		liste_valeurs.push(ourien('', Participe_present(verbe(liste_balises[index])), ' ') + ValeurComplementee(liste_balises[index], inclure_references));
+		var le_verbe = verbe(liste_balises[index]);
+		var valeur = ValeurComplementee(liste_balises[index], inclure_references);
+		if (le_verbe != '') valeur = Participe_present(le_verbe) + ' ' + Avec_article_indefini(liste_balises[index], valeur);
+		liste_valeurs.push(valeur);
+	}
+	return liste_valeurs;
+}
+
+// caracteristiques nouvelles de la revendication principale ; celles qui ont un verbe ecrit juste avant elles
+// sont precedees du pronom de l'objet : "caracterisee en ce qu'elle comprend un couvercle et qu'elle comporte un frein"
+var pronoms_sujet = [['il', 'elle', 'ils', 'elles'], ['it', 'it', 'they', 'they']];
+var conjonction_que = ['que', 'that'];
+
+function liste_nouveaux_avec_verbe(liste_balises, genrenombre_objet, inclure_references) {
+	var liste_valeurs = [];
+	var pronom = pronoms_sujet[position][Math.max(IndexeGN(genrenombre_objet), 0)];
+	for (var index = 0; index < liste_balises.length; index++) {
+		var valeur = ValeurComplementee(liste_balises[index], inclure_references);
+		var le_verbe = verbe_devant(liste_balises[index]);
+		if (le_verbe != '') {
+			valeur = pronom + ' ' + le_verbe + ' ' + Avec_article_indefini(liste_balises[index], valeur);
+			if (index > 0) valeur = liaison(conjonction_que[position], valeur);
+		}
+		liste_valeurs.push(valeur);
 	}
 	return liste_valeurs;
 }
@@ -2249,6 +2279,24 @@ function balises_identiques(balise1, balise2) {
 	return identiques;
 }
 
+// verbe ecrit juste avant la balise : verbe de la caracteristique dans la revendication principale
+function verbe_devant(balise) {
+	var balises_verbe = liste_balises_precisantes_de_type(balise, tagname_verbe);
+	for (var i = 0; i < balises_verbe.length; i++) {
+		if (verbes_devant_cible[balises_verbe[i].idobjet]) return balises_verbe[i].valeur;
+	}
+	return '';
+}
+
+// verbe ecrit ailleurs : verbe par defaut des options de la caracteristique
+function verbe_pour_options(balise) {
+	var balises_verbe = liste_balises_precisantes_de_type(balise, tagname_verbe);
+	for (var i = 0; i < balises_verbe.length; i++) {
+		if (!verbes_devant_cible[balises_verbe[i].idobjet]) return balises_verbe[i].valeur;
+	}
+	return '';
+}
+
 function verbe(balise) {
 	var balises_verbe = liste_balises_precisantes_de_type(balise, tagname_verbe);
 	var verbe = ((balises_verbe.length > 0) ? balises_verbe[0].valeur:'');
@@ -2279,7 +2327,7 @@ function FabriqueSousRevendication(liste_numeros_maitresses, balise_objet, balis
 // sans verbe propre, l'option herite du verbe de la caracteristique nouvelle qu'elle precise
 // (pas d'une caracteristique connue : son verbe est celui de la revendication principale)
 	if ((le_verbe == '') && balise_a_preciser && (TypeDe(balise_a_preciser) == tagname_nouveau)) {
-		le_verbe = verbe(balise_a_preciser);
+		le_verbe = verbe_pour_options(balise_a_preciser);
 	}
 // si balise precisante definie comme continue, pas de verbe
 	// remplacer par une fonction pour la langue FIXME
@@ -2292,7 +2340,7 @@ function FabriqueRevendicationObjet(liste_numeros_maitresses, balise_objet, incl
 	var connus = Virgule(liste_valeurs_complementees_avec_verbe(les_connus, inclure_references));
 	var problemes = texte_problemes(les_connus, inclure_numpar);
 	var les_nouveaux = liste_balises_nouveaux(balise_objet);
-	var nouveaux = VirguleEt(liste_valeurs_complementees(les_nouveaux, inclure_references));
+	var nouveaux = VirguleEt(liste_nouveaux_avec_verbe(les_nouveaux, balise_objet.genrenombre, inclure_references));
 	var avantages = texte_avantages(les_nouveaux, inclure_numpar);
 	var les_balises_connu_et_nouveau = [].concat(les_connus, les_nouveaux);
 	var definitions = texte_definitions(les_balises_connu_et_nouveau, inclure_numpar);
@@ -3393,7 +3441,22 @@ function FermeA() {
 	return '</a>'
 }
 
+// verbes ecrits juste avant la balise qu'ils concernent (ex. : "<verbe v de='nouveau c'>comprend</verbe> un <nouveau c ...>"),
+// a l'ecart d'au plus deux mots sans ponctuation
+var verbes_devant_cible = {};
+
+function NoteVerbeDevantCible(ledico, chaine_balise_suivante) {
+	if ((ledico == null) || (ledico.typebalise != tagname_verbe) || (ledico.idobjetconcerne == '')) return;
+	var balise_suivante = AnalyseBalise(chaine_balise_suivante);
+	if ((balise_suivante == null) || (balise_suivante.idobjet != ledico.idobjetconcerne)) return;
+	var ecart = ledico.reste.replace(/_n_/g, ' ').trim();
+	if (/[.,;:!?()]/.test(ecart)) return;
+	if ((ecart != '') && (ecart.split(/\s+/).length > 2)) return;
+	verbes_devant_cible[ledico.idobjet] = true;
+}
+
 function Traitement(texte) {
+	verbes_devant_cible = {};
 	var patt = new RegExp(MotifBaliseOuvrante(), "img");
 	var debut = 0;
 	var fin = 0;
@@ -3411,6 +3474,7 @@ function Traitement(texte) {
 			troncon = texte.substring(debut, fin - chaine_nouvelle_balise.length);
 			var ledico = AnalyseChaine(chaine_balise, troncon, gn_article);
 			ExploiteDico(ledico);
+			NoteVerbeDevantCible(ledico, chaine_nouvelle_balise);
 			debut = fin;
 			chaine_balise = chaine_nouvelle_balise;
 			gn_article = GenreNombreArticlePrecedent(troncon);
