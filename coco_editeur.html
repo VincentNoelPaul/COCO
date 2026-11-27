@@ -2136,6 +2136,15 @@ function liste_valeurs_complementees(liste_balises, inclure_references) {
 	return liste_valeurs;
 }
 
+// comme liste_valeurs_complementees, mais chaque valeur est precedee du verbe qui lui est rattache (ex. : "comprenant une cuve")
+function liste_valeurs_complementees_avec_verbe(liste_balises, inclure_references) {
+	var liste_valeurs = [];
+	for (var index = 0; index < liste_balises.length; index++) {
+		liste_valeurs.push(ourien('', verbe(liste_balises[index]), ' ') + ValeurComplementee(liste_balises[index], inclure_references));
+	}
+	return liste_valeurs;
+}
+
 function ValeurComplementee(balise, inclure_references) {
 	// c'est le groupe nominal avec les pre et post qualificatifs
 	return groupe_nominal(balise, inclure_references, true);
@@ -2217,8 +2226,9 @@ function FabriqueSousRevendication(liste_numeros_maitresses, balise_objet, balis
 	var precisions = texte_precisions([balise_precisante], inclure_numpar);
 	var definitions = texte_definitions([balise_precisante], inclure_numpar);
 	var le_verbe = verbe(balise_precisante);
-// sans verbe propre, l'option herite du verbe de la caracteristique nouvelle ou connue qu'elle precise
-	if ((le_verbe == '') && balise_a_preciser && ((TypeDe(balise_a_preciser) == tagname_nouveau) || (TypeDe(balise_a_preciser) == tagname_connu))) {
+// sans verbe propre, l'option herite du verbe de la caracteristique nouvelle qu'elle precise
+// (pas d'une caracteristique connue : son verbe est celui de la revendication principale)
+	if ((le_verbe == '') && balise_a_preciser && (TypeDe(balise_a_preciser) == tagname_nouveau)) {
 		le_verbe = verbe(balise_a_preciser);
 	}
 // si balise precisante definie comme continue, pas de verbe
@@ -2229,7 +2239,7 @@ function FabriqueSousRevendication(liste_numeros_maitresses, balise_objet, balis
 
 function FabriqueRevendicationObjet(liste_numeros_maitresses, balise_objet, inclure_references, dependance_revendications, inclure_numpar) {
 	var les_connus = liste_balises_connus(balise_objet);
-	var connus = Virgule(liste_valeurs_complementees(les_connus, inclure_references));
+	var connus = Virgule(liste_valeurs_complementees_avec_verbe(les_connus, inclure_references));
 	var problemes = texte_problemes(les_connus, inclure_numpar);
 	var les_nouveaux = liste_balises_nouveaux(balise_objet);
 	var nouveaux = VirguleEt(liste_valeurs_complementees(les_nouveaux, inclure_references));
