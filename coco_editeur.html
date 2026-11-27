@@ -2136,6 +2136,15 @@ function liste_valeurs_complementees(liste_balises, inclure_references) {
 	return liste_valeurs;
 }
 
+// comme liste_valeurs_complementees, mais chaque valeur est precedee du verbe qui lui est rattache (ex. : "comprenant une cuve")
+function liste_valeurs_complementees_avec_verbe(liste_balises, inclure_references) {
+	var liste_valeurs = [];
+	for (var index = 0; index < liste_balises.length; index++) {
+		liste_valeurs.push(ourien('', verbe(liste_balises[index]), ' ') + ValeurComplementee(liste_balises[index], inclure_references));
+	}
+	return liste_valeurs;
+}
+
 function ValeurComplementee(balise, inclure_references) {
 	// c'est le groupe nominal avec les pre et post qualificatifs
 	return groupe_nominal(balise, inclure_references, true);
@@ -2217,8 +2226,9 @@ function FabriqueSousRevendication(liste_numeros_maitresses, balise_objet, balis
 	var precisions = texte_precisions([balise_precisante], inclure_numpar);
 	var definitions = texte_definitions([balise_precisante], inclure_numpar);
 	var le_verbe = verbe(balise_precisante);
-// sans verbe propre, l'option herite du verbe de la caracteristique nouvelle ou connue qu'elle precise
-	if ((le_verbe == '') && balise_a_preciser && ((TypeDe(balise_a_preciser) == tagname_nouveau) || (TypeDe(balise_a_preciser) == tagname_connu))) {
+// sans verbe propre, l'option herite du verbe de la caracteristique nouvelle qu'elle precise
+// (pas d'une caracteristique connue : son verbe est celui de la revendication principale)
+	if ((le_verbe == '') && balise_a_preciser && (TypeDe(balise_a_preciser) == tagname_nouveau)) {
 		le_verbe = verbe(balise_a_preciser);
 	}
 // si balise precisante definie comme continue, pas de verbe
@@ -2229,7 +2239,7 @@ function FabriqueSousRevendication(liste_numeros_maitresses, balise_objet, balis
 
 function FabriqueRevendicationObjet(liste_numeros_maitresses, balise_objet, inclure_references, dependance_revendications, inclure_numpar) {
 	var les_connus = liste_balises_connus(balise_objet);
-	var connus = Virgule(liste_valeurs_complementees(les_connus, inclure_references));
+	var connus = Virgule(liste_valeurs_complementees_avec_verbe(les_connus, inclure_references));
 	var problemes = texte_problemes(les_connus, inclure_numpar);
 	var les_nouveaux = liste_balises_nouveaux(balise_objet);
 	var nouveaux = VirguleEt(liste_valeurs_complementees(les_nouveaux, inclure_references));
@@ -3148,7 +3158,29 @@ function AnalyseBalise(chaine_balise) {
 	return null;
 }
 
-function AnalyseChaine(chaine_balise, texte) {
+// deduit le genre et le nombre de l'article place juste avant une balise (ex. : "une <nouveau ...>"), '' si aucun
+function GenreNombreArticlePrecedent(texte_avant) {
+	var res = /([^\s<>]+)\s*$/.exec(texte_avant.replace(/_n_/g, ' '));
+	if (res == null) return '';
+	var mot = res[1].toLowerCase();
+	// article elide (l') : genre inconnu, mais singulier ; le masculin redonne bien l' devant une voyelle
+	try { if ((article_defini_elide_ms.indexOf('\'') > -1) && (mot == article_defini_elide_ms.toLowerCase())) return 'ms'; }
+	catch(err) { return ''; }
+	if (mot.lastIndexOf('\'') > -1) mot = mot.substr(mot.lastIndexOf('\'') + 1);
+	if (mot == '') return '';
+	var genresnombres = ['ms', 'fs', 'mp', 'fp'];
+	for (var j = 0; j < genresnombres.length; j++) {
+		var gn = genresnombres[j];
+		try { var candidats = [eval('article_indefini_' + gn), eval('article_defini_' + gn)]; }
+		catch(err) { return ''; }
+		for (var k = 0; k < candidats.length; k++) {
+			if ((candidats[k] != '') && (candidats[k].toLowerCase() == mot)) return gn;
+		}
+	}
+	return '';
+}
+
+function AnalyseChaine(chaine_balise, texte, gn_article_precedent) {
 	var dico = '{"baliseouvrante":"", "reste":"'+chaine_balise+texte+'"}';
 	var ledico = AnalyseBalise(chaine_balise);
 	if (ledico!=null) {
@@ -3172,11 +3204,12 @@ function AnalyseChaine(chaine_balise, texte) {
 				if (cles.indexOf(tagname_gn)>-1) var genrenombre = les_details[tagname_gn];
 				else var genrenombre = '';
 				if (cles.indexOf(tagname_continu)>-1) var continu = les_details[tagname_continu];
+				if ((genrenombre == '') && gn_article_precedent) genrenombre = gn_article_precedent;
 				else var continu = '';
 			}
 			else {
 				var idobjetconcerne = '';
-				var genrenombre = '';	
+				var genrenombre = ((gn_article_precedent) ? gn_article_precedent : '');
 				var continu = '';		
 			}
 			var dico = '{"baliseouvrante":"'+ledico.baliseentiere+'", "idobjet":"'+ledico.idobjet+'", "typebalise":"'+ledico.typebalise+'", "nombalise":"'+ledico.nombalise+'", "details":"'+ledico.details+'", "idobjetconcerne":"'+idobjetconcerne+'", "genrenombre":"'+genrenombre+'", "continu":"'+continu+'", "texteinterne":"'+chaine+'", "sansparentheses":"'+avecetsansparentheses.autour+'", "entreparentheses":"'+avecetsansparentheses.entreparentheses+'", "expression_recherchee":"'+avecetsansparentheses.expression_recherchee+'", "expression_sans_parentheses":"'+avecetsansparentheses.expression_sans_parentheses+'", "balisefermante":"'+chainebalisefermante+'", "reste":"'+reste+'", "mdr":"'+mdr_global+'"}';
@@ -3320,19 +3353,21 @@ function Traitement(texte) {
 	var chaine_nouvelle_balise = '';
 	var troncon = '';
 	var reste = '';
+	var gn_article = '';
 	if (res!=null) {	
 		while (res!=null) {
 			fin = patt.lastIndex;
 			chaine_nouvelle_balise = res[0];
 			troncon = texte.substring(debut, fin - chaine_nouvelle_balise.length);
-			var ledico = AnalyseChaine(chaine_balise, troncon);
+			var ledico = AnalyseChaine(chaine_balise, troncon, gn_article);
 			ExploiteDico(ledico);
 			debut = fin;
 			chaine_balise = chaine_nouvelle_balise;
+			gn_article = GenreNombreArticlePrecedent(troncon);
 			res = patt.exec(texte);
 		}
 		troncon = texte.substr(debut, texte.length - 1);
-		var ledico =  AnalyseChaine(chaine_balise, troncon);
+		var ledico =  AnalyseChaine(chaine_balise, troncon, gn_article);
 		ExploiteDico(ledico);
 	}
 }
