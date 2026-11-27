@@ -2217,6 +2217,10 @@ function FabriqueSousRevendication(liste_numeros_maitresses, balise_objet, balis
 	var precisions = texte_precisions([balise_precisante], inclure_numpar);
 	var definitions = texte_definitions([balise_precisante], inclure_numpar);
 	var le_verbe = verbe(balise_precisante);
+// sans verbe propre, l'option herite du verbe de la caracteristique nouvelle ou connue qu'elle precise
+	if ((le_verbe == '') && balise_a_preciser && ((TypeDe(balise_a_preciser) == tagname_nouveau) || (TypeDe(balise_a_preciser) == tagname_connu))) {
+		le_verbe = verbe(balise_a_preciser);
+	}
 // si balise precisante definie comme continue, pas de verbe
 	// remplacer par une fonction pour la langue FIXME
 	var objetsousrev = AjouteRevendication(false, liste_numeros_maitresses, dependance_revendications, balise_objet, inclure_references, [a_preciser], le_verbe, [groupe_nominal(balise_precisante, inclure_references, true)], '', avantages, definitions, precisions);
